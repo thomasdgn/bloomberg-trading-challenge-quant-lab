@@ -1,0 +1,7 @@
+# Versions communes, y compris les dépendances indirectes.
+-c requirements-lock.txt
+pandas
+openpyxl
+pyarrow
+pytest
+ruff

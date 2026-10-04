@@ -1,0 +1,43 @@
+# Python environments and caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.egg-info/
+build/
+dist/
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+
+# Bloomberg exports and generated datasets (documentation stays tracked)
+/data/*
+!/data/README.md
+/WLS.xlsm
+/wls.xlsx
+
+# Generated results and temporary work
+/outputs/
+/output/
+/artifacts/
+/tmp/
+*.log
+.ipynb_checkpoints/
+
+# Editors, operating systems and Excel lock files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+~$*
