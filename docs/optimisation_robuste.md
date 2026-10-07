@@ -2,6 +2,9 @@
 
 État au **7 octobre 2026**, branche `feature/robust-optimization`.
 Ce document propose une architecture ; il ne décrit pas un moteur déjà opérationnel.
+L'adaptateur, le risque relatif et la référence à TE minimale ont depuis été
+implémentés : voir [reference_v1.md](reference_v1.md). L'alpha robuste et
+l'exécution décrits ici restent des étapes suivantes.
 Les recommandations ci-dessous sont notre jugement pour ce dépôt et ce délai,
 pas une promesse de surperformance issue de la littérature.
 

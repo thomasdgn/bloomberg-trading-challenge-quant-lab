@@ -1,0 +1,28 @@
+{
+  "assets": {
+    "REPLACE_WITH_BLOOMBERG_ID": {
+      "verified": false,
+      "evidence": "",
+      "available_at": null,
+      "currency": null,
+      "price_unit_multiplier": null,
+      "adjustment": null
+    }
+  },
+  "benchmark": {
+    "id": "WLS Index",
+    "verified": false,
+    "evidence": "",
+    "available_at": null,
+    "currency": null,
+    "return_type": null
+  },
+  "fx": {
+    "EUR": {
+      "verified": false,
+      "evidence": "",
+      "available_at": null,
+      "quote": null
+    }
+  }
+}

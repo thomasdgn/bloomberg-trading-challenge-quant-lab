@@ -25,6 +25,12 @@ Il ne suppose pas que ces personnes sont déjà assignées ni disponibles.
 
 ## Inventaire concret du dépôt
 
+**Mise à jour de cette branche :** l'adaptateur, le risque relatif et l'optimiseur
+de référence sont maintenant implémentés ; leur utilisation et leurs limites
+figurent dans [reference_v1.md](reference_v1.md). Le tableau ci-dessous décrit
+l'état initial du diagnostic du 7 octobre. L'alpha robuste, les ordres et le
+backtest restent à réaliser.
+
 | Brique | État constaté | Ce qui manque |
 |---|---|---|
 | Environnement + CI | Python 3.14, dépendances figées, tests Windows/Linux | CVXPY/solveur non déclarés ni vérifiés sous les deux OS |
@@ -37,9 +43,9 @@ Il ne suppose pas que ces personnes sont déjà assignées ni disponibles.
 | Exécution | Aucun module présent ; parcours TMSG décrit dans le handbook | Tickets USD, idées BUY/CLOSE, ordres en attente, cash et réconciliation |
 | Rapport quotidien | Aucun orchestrateur présent | Commande unique, journal d'exécution, alertes et suivi relatif |
 
-Les fichiers `src/elastic_net_transversal.py`, `src/optimisation.py` et
-`src/backtest.py` annoncés dans le README **n'existent pas encore** au moment de
-l'étude. L'environnement est prêt ; le quant lab de bout en bout ne l'est pas.
+Les fichiers `src/elastic_net_transversal.py` et `src/backtest.py` annoncés dans
+le README restent absents. `src/optimisation.py` fournit désormais la référence
+sans alpha. Le quant lab de bout en bout reste à terminer.
 
 ## Diagnostic des données
 
