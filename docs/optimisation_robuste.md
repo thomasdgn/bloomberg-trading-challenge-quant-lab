@@ -1,6 +1,6 @@
 # Optimisation robuste : étude et proposition pour le quant lab
 
-État au **7 octobre 2026**, branche `codex/robust-optimization`.
+État au **7 octobre 2026**, branche `feature/robust-optimization`.
 Ce document propose une architecture ; il ne décrit pas un moteur déjà opérationnel.
 Les recommandations ci-dessous sont notre jugement pour ce dépôt et ce délai,
 pas une promesse de surperformance issue de la littérature.
