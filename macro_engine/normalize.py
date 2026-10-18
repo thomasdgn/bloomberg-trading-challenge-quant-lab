@@ -40,7 +40,7 @@ def normalize(state: DailyState, date=None, *, method="standard") -> NormalizedS
     history = state.values.loc[:query].dropna()
     weights = block_weights(list(history.columns))
     if method == "standard":
-        center, scale = history.mean(), history.std(ddof=0)
+        center, scale = history.mean(), history.std(ddof=cfg.STANDARDIZATION_DDOF)
     elif method == "robust":
         center = history.median()
         scale = history.quantile(0.75) - history.quantile(0.25)

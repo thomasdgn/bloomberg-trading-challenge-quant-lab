@@ -69,7 +69,7 @@ def regular_events(observations: pd.DataFrame, identifier: str, end) -> pd.DataF
             if (levels.dropna() <= 0).any():
                 raise ValueError("Nonpositive S&P 500 close.")
             values = np.log(levels / levels.shift()).rolling(cfg.VOLATILITY_WINDOW_SESSIONS).std(
-                ddof=1
+                ddof=cfg.REALIZED_VOLATILITY_DDOF
             ) * np.sqrt(cfg.ANNUALIZATION_SESSIONS)
         else:
             if (levels.dropna() <= 0).any():

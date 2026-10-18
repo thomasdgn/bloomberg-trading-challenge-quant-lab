@@ -26,6 +26,8 @@ SENSITIVITY_QUANTILES = (0.025, 0.05, 0.10)
 REGIME_PERCENTILES = (0.20, 0.80)
 VOLATILITY_WINDOW_SESSIONS = 20
 ANNUALIZATION_SESSIONS = 252
+STANDARDIZATION_DDOF = 0
+REALIZED_VOLATILITY_DDOF = 1
 RATE_CHANGE_SESSIONS = 126
 DOLLAR_CHANGE_SESSIONS = 252
 CPI_CHANGE_MONTHS = 12
@@ -61,6 +63,28 @@ UNEMPLOYMENT_FALLBACK_DAYS = 7
 NEWS_PUBLICATION_DELAY_DAYS = 10
 DAILY_PUBLICATION_DELAY_BUSINESS_DAYS = 1
 OIL_ADDITIONAL_BUSINESS_DAYS = 1
+REGIME_RULES = (
+    ("INFLATION_HAUTE", "CPIAUCNS", "upper"),
+    ("INFLATION_BASSE", "CPIAUCNS", "lower"),
+    ("RALENTISSEMENT", "UNRATE", "upper"),
+    ("RESSERREMENT", "DGS2", "upper"),
+    ("ASSOUPLISSEMENT", "DGS2", "lower"),
+    ("COURBE_INVERSEE", "T10Y2Y", "negative"),
+    ("STRESS_CREDIT", "BAA10Y", "upper"),
+    ("STRESS_MARCHE", "SP500", "upper"),
+    ("CHOC_ENERGIE", "DCOILWTICO", "upper"),
+    ("RISQUE_GEO_ELEVE", "GPR", "upper"),
+    ("INCERTITUDE_ELEVEE", "EPU", "upper"),
+    ("DOLLAR_FORT", "DTWEXBGS", "upper"),
+)
+OUTPUT_ROOT = Path(__file__).resolve().parent.parent / "outputs" / "macro_engine"
+CSV_FLOAT_FORMAT = "%.17g"
+# D008: user-authorized addition, separate from frozen SPEC.md.
+HISTORY_START = "2020-11-06"
+HISTORY_END = "2026-10-16"
+HISTORY_HOLIDAY_RULE = "previous_nyse_session"
+HISTORY_FILENAME = "macro_rebalance_analogues_long.csv"
+DIAGNOSTIC_ROW_HEIGHT = 180
 
 MODULE_ROOT = Path(__file__).resolve().parent
 CACHE_ROOT = MODULE_ROOT / "cache"
@@ -236,7 +260,7 @@ SERIES = (
         "daily",
         "log_change_252_sessions",
         "Dollar",
-        "session J + 1 business day; no splicing with DTWEXM",
-        "PIT_APPROXIMATED",
+        "D003: retrospective reference-date alignment in R descriptive only",
+        "RETROSPECTIVE",
     ),
 )
