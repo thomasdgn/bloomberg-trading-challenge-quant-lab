@@ -1,6 +1,6 @@
 # Décisions macro — validations et limites de collecte
 
-SPEC.md reste inchangé. Les validations ci-dessous proviennent du retour explicite de l'utilisateur sur le rapport de l'étape 01, le 18 octobre 2026.
+SPEC.md reste inchangé. Les validations ci-dessous proviennent des retours explicites de l'utilisateur sur les étapes 01 et 02, le 18 octobre 2026. Le présent complément est documentaire : les règles D003 à D007 ne sont pas implémentées avant le message explicite « GO ÉTAPE 03 ».
 
 ## D001 — Horizon de l'évaluation et cible de comparaison
 
@@ -35,7 +35,7 @@ Le fichier GPR officiel est un classeur Excel 97-2003 .xls : xlrd==2.0.2 est ajo
 
 ## D003 — Dollar DTWEXBGS : conflit entre J+1 et publication hebdomadaire
 
-**Statut : BLOQUANT POUR L'USAGE STRICT DU DOLLAR, EN ATTENTE DE VALIDATION.**
+**Statut : VALIDÉE SOUS CONDITION par l'utilisateur le 18 octobre 2026 ; condition vérifiée. Application logicielle différée.**
 
 Constat officiel au 18 octobre 2026 :
 
@@ -46,15 +46,33 @@ Constat officiel au 18 octobre 2026 :
 
 Sources : https://www.federalreserve.gov/releases/h10/ et https://fred.stlouisfed.org/series/DTWEXBGS.
 
-La collecte brute reste possible. Le registre marque pit_rule_requires_decision=True et pit_capability=publication_delay_requires_validation. La règle figée J+1 dans la description de configuration n'est pas appliquée ou remplacée ; aucun vecteur strict n'est construit.
+Vérification réelle de series/vintagedates pour DTWEXBGS, arrêtée au 18/10/2026 :
 
-Proposition à faire valider avant l'étape PIT : exception explicite pour le dollar, fondée sur les dates de publication historiques H.10/ALFRED ou, lorsque la preuve manque, une convention conservatrice documentée. Le traitement de 2006-2009 doit être décidé séparément si les dates historiques ne peuvent pas être vérifiées.
+| Nombre de millésimes | Plus ancien | Plus récent |
+|---:|---|---|
+| 402 | 2019-02-04 | 2026-10-13 |
 
-Ce point concerne l'échantillon R. Le dollar n'est pas ajouté à H et aucun raccord avec une autre série de dollar n'est effectué.
+Règle validée pour la future étape PIT :
+
+1. La disponibilité d'une observation est le realtime_start du premier millésime ALFRED qui la contient ; statut PIT_VERIFIED.
+2. Toute observation dont la date de référence précède le 04/02/2019 est RETROSPECTIVE, utilisable uniquement en mode descriptif. Sa présence dans un millésime ultérieur n'autorise pas son usage strict.
+3. Le premier millésime étant postérieur à 2010, **R est descriptif uniquement dans le MVP**. Cette restriction reste applicable même si une fenêtre stricte plus récente serait techniquement envisageable.
+4. Aucun raccord avec une autre série de dollar, aucune disponibilité reconstruite par simple J+1.
+
+Borne documentaire de faisabilité d'un éventuel R strict, hors livraison MVP :
+
+- Première observation non rétrospective : 04/02/2019 ; premier millésime la contenant : 11/02/2019.
+- Pour la variation dollar sur 252 séances NYSE, première paire admissible : 04/02/2019 → 04/02/2020.
+- Premier millésime contenant les deux extrémités : 10/02/2020 ; premier état R strict théoriquement possible à cette date.
+- La 1 260e séance NYSE à partir du 10/02/2020 inclus est le **12/02/2025** : première borne possible pour une distance, sous hypothèse de complétude de toutes les autres variables.
+
+Ce n'est pas une date de production certifiée : aucun état, transformation, normalisation ou distance n'a été calculé dans le module. Des données manquantes pourraient reporter cette date. L'analyse documentaire utilise le calendrier NYSE de pandas-market-calendars 5.5.0 et les intervalles ALFRED interrogés hors du cache de référence.
+
+Le registre immuable de l'étape 02 conserve ses anciens indicateurs de décision en attente ; il n'est pas réécrit pour simuler une validation antérieure. Les preuves dollar supplémentaires restent hors du cache épinglé et n'alimenteront pas les étapes suivantes. Le cache de référence ne contient pas les intervalles ALFRED du dollar, ce qui interdit de présenter un R strict exécutable à partir de ce seul cache.
 
 ## D004 — GPR et EPU : archives actuelles et dates non certifiées
 
-**Statut : LIMITATION DOCUMENTÉE ; AUCUN CONTOURNEMENT APPLIQUÉ.**
+**Statut : VALIDÉE TELLE QUE DOCUMENTÉE par l'utilisateur le 18 octobre 2026.**
 
 Les fichiers officiels sont téléchargeables automatiquement. Ils ne contiennent ni millésimes historiques complets ni dates de publication réelles par observation.
 
@@ -63,7 +81,41 @@ Les fichiers officiels sont téléchargeables automatiquement. Ils ne contiennen
 - L'éditeur EPU documente de possibles révisions des deux mois précédents : https://www.policyuncertainty.com/us_monthly.html.
 - Le délai M+10 jours est la convention de SPEC.md ; il ne certifie pas que la valeur téléchargée aujourd'hui était exactement celle publiée à cette date passée.
 
-Le statut reste CONTEMPORARY_INPUT_RETRO_METHOD, jamais PIT_VERIFIED. Les téléchargements sont archivés avec leur date et leur empreinte. La future étape PIT doit conserver cette limitation ; l'ablation avec/sans GPR et EPU reste obligatoire en mode strict. Aucune série n'est requalifiée et aucune règle de disponibilité n'est implémentée à l'étape 02.
+Le statut reste CONTEMPORARY_INPUT_RETRO_METHOD, jamais PIT_VERIFIED. Les téléchargements sont archivés avec leur date et leur empreinte. La future étape PIT doit conserver cette limitation ; l'ablation avec/sans GPR et EPU reste obligatoire en mode strict. Aucune série n'est requalifiée et aucune règle de disponibilité n'est implémentée dans ce complément.
+
+## D005 — S&P 500 : Yahoo ^GSPC retenu pour le MVP
+
+**Statut : VALIDÉE par l'utilisateur le 18 octobre 2026 ; application logicielle différée.**
+
+Yahoo Finance ^GSPC est la source retenue pour la volatilité réalisée du MVP : clôtures de l'indice, sans réinvestissement de dividendes. Ce n'est plus un secours provisoire. La variable macro reste l'écart-type annualisé des log-rendements sur vingt séances, conformément à SPEC.md ; aucune transformation n'est encore effectuée.
+
+Le cache de référence contient déjà les clôtures ^GSPC requises, téléchargées par yfinance avec auto_adjust=False. Ses métadonnées historiques emploient le mot « fallback » parce que c'était la politique au moment de la collecte ; elles restent intactes. La décision actuelle remplace cette politique pour l'usage futur sans modifier la source téléchargée ni la provenance passée.
+
+## D006 — Cache de référence épinglé
+
+**Statut : VALIDÉE par l'utilisateur le 18 octobre 2026.**
+
+Référence unique approuvée :
+
+    macro_engine/cache/20261018T143956.868547Z/
+
+Toutes les étapes suivantes devront lire uniquement ce cache, vérifier ses empreintes et ne pas sélectionner automatiquement le cache le plus récent. Toute nouvelle collecte de référence exige une décision explicite de l'utilisateur.
+
+Le registre source_registry.csv et le manifeste run_manifest.json restent inchangés. Les requêtes dollar de ce complément sont des preuves documentaires hors cache ; elles ne constituent pas un nouveau jeu de référence.
+
+L'ajout d'une constante et l'application du verrou de lecture dans config.py sont à effectuer avant tout traitement de l'étape 03, sous réserve de la clarification « commit documentaire uniquement ». Aucun comportement de collecte ou de lecture n'est changé dans le présent complément.
+
+## D007 — Troncature sans historique suffisant
+
+**Statut : VALIDÉE par l'utilisateur le 18 octobre 2026 ; test à écrire lors de l'étape concernée.**
+
+Lorsqu'une date n'a pas l'historique minimal requis, le test compare entre données complètes et données coupées à t :
+
+1. L'identité de l'état quotidien.
+2. L'identité des étiquettes.
+3. L'identité de l'absence d'analogues dans les deux exécutions.
+
+Une absence attendue d'analogues n'est ni une erreur du test ni une autorisation d'abaisser le minimum de 1 260 séances. Cela s'applique notamment au cas 1990-08-15 s'il ne dispose pas d'un historique complet suffisant. Aucun état, étiquette ou analogue de cette date n'est calculé dans ce complément documentaire.
 
 ## Suivi des validations
 
@@ -71,5 +123,12 @@ Le statut reste CONTEMPORARY_INPUT_RETRO_METHOD, jamais PIT_VERIFIED. Les télé
 |---|---|---|---|
 | D001 | Quatre semaines ; cible quant-lab lue directement pour IC | 2026-10-18 | Retour explicite sur RAPPORT_MACRO_ETAPE_01 |
 | D002 | Dépendances macro séparées, figées ; pas de modification CI | 2026-10-18 | Retour explicite sur RAPPORT_MACRO_ETAPE_01 |
-| D003 | Exception de disponibilité du dollar | — | En attente avant usage strict |
-| D004 | Limites des fichiers actuels GPR/EPU | 2026-10-18 | Constat de collecte, pas une nouvelle validation |
+| D003 | Premiers millésimes ALFRED ; données antérieures rétrospectives ; R descriptif uniquement dans le MVP | 2026-10-18 | Retour explicite sur l'étape 02 ; premier millésime 2019 confirmé |
+| D004 | GPR/EPU acceptés avec les limitations documentées | 2026-10-18 | Retour explicite sur l'étape 02 |
+| D005 | Source S&P 500 Yahoo ^GSPC retenue pour le MVP | 2026-10-18 | Retour explicite sur l'étape 02 |
+| D006 | Cache 20261018T143956.868547Z épinglé ; nouvelle référence sur décision explicite | 2026-10-18 | Retour explicite sur l'étape 02 |
+| D007 | Troncature : états/étiquettes identiques et même absence d'analogues si historique insuffisant | 2026-10-18 | Retour explicite sur l'étape 02 |
+
+## Arrêt de périmètre
+
+Ce complément n'autorise aucune implémentation de l'étape 03. Le message **GO ÉTAPE 03** reste obligatoire avant de la commencer.
