@@ -51,13 +51,8 @@ class ReferenceData:
         return ReferenceData(observations, vintages, self.cache_id)
 
 
-def load_reference() -> ReferenceData:
-    """Verify trust anchors, raw payloads and every input before deserializing.
-
-    No directory argument, cache fallback, network call or write is permitted.
-    Deserialize the verified bytes themselves (no check/read race).
-    Collection-time code hashes are provenance, not a current-code constraint.
-    """
+def reference_metadata() -> tuple[dict, pd.DataFrame]:
+    """Read only the anchored provenance, without changing the reference cache."""
     root = cfg.CACHE_ROOT / cfg.REFERENCE_CACHE
     verified_bytes(cfg.MODULE_ROOT.parent / "SPEC.md", cfg.SPEC_SHA256)
     manifest = json.loads(
@@ -69,6 +64,18 @@ def load_reference() -> ReferenceData:
     )
     if tuple(registry.identifier) != tuple(series.identifier for series in cfg.SERIES):
         raise ReferenceError("Unexpected reference series registry.")
+    return manifest, registry
+
+
+def load_reference() -> ReferenceData:
+    """Verify trust anchors, raw payloads and every input before deserializing.
+
+    No directory argument, cache fallback, network call or write is permitted.
+    Deserialize the verified bytes themselves (no check/read race).
+    Collection-time code hashes are provenance, not a current-code constraint.
+    """
+    root = cfg.CACHE_ROOT / cfg.REFERENCE_CACHE
+    manifest, registry = reference_metadata()
     for artifact in manifest["artifacts"]:
         verified_bytes(_file(root, artifact["file"]), artifact["sha256"])
     observations, vintages = {}, {}
