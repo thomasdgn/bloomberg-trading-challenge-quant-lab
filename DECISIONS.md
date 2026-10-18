@@ -132,3 +132,11 @@ Une absence attendue d'analogues n'est ni une erreur du test ni une autorisation
 ## Arrêt de périmètre
 
 Ce complément n'autorise aucune implémentation de l'étape 03. Le message **GO ÉTAPE 03** reste obligatoire avant de la commencer.
+
+## D008 — Historique des analogues à quatre semaines, ajout hors SPEC
+
+**Statut : VALIDÉE explicitement par l'utilisateur lors du GO ÉTAPE 05 et de sa réponse sur les vendredis fériés.**
+
+Ajout indépendant, sans modification de SPEC.md : calculer H strict avec et sans GPR/EPU pour une grille de quatre semaines ancrée au 06/11/2020 et bornée au 16/10/2026. Un vendredi théorique fermé au NYSE est ramené à la dernière séance NYSE précédente. Les deux dates sont conservées dans le fichier long unique. La borne finale n'ajoute pas de date hors grille : dernier vendredi théorique le 02/10/2026, 78 dates théoriques au total.
+
+Chaque date est reconstruite après troncature indépendante des observations et des publications à la séance de requête ; aucune performance, cible future ou décision d'ordres n'est calculée. Les cinq épisodes constituent un maximum selon les règles figées : les épisodes manquants ne sont pas inventés et les états de requête incomplets sont signalés. La stabilité reprend les neuf variantes fixées, sans réglage supplémentaire. Le script est séparé du point d'entrée MVP.
