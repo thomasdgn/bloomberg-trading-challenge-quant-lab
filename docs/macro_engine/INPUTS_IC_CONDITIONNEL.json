@@ -1,0 +1,31 @@
+{
+  "phase": "A; no conditional means or contrasts computed",
+  "created_at_utc": "2026-10-18T17:31:05.000011+00:00",
+  "prepared_sha256": {
+    "predictions_5w.parquet": "9df6b3dc5a2dd3cebf80922e6f0dd29040202a2e100df3af3ccca8e46a90bb4a",
+    "unconditional_ic.csv": "3d71302b49121af8334dc19d1e249574313851487daf1e091e960ce7f5f8816c",
+    "prepared_manifest.json": "ff23ee4b7eca313987cabe3a9a59e31975968004003ceb9d9bc65f2d44932715"
+  },
+  "labels_sha256": "456ee3ff2d6ad191714ad43931170d4ff0cb82d02db2982ba6f0d3b7362014bb",
+  "mde_sha256": "73db3d5734d96e26f4c9ac4373c3718a04756144174342188c572f53f1029842",
+  "reference_cache": "20261018T143956.868547Z",
+  "reference_manifest_sha256": "032337011be194aea7231227f61b881d0d57ece9119802820842aad849580c57",
+  "spec_sha256": "6b3e47b7d1119c2edb4e07dd6b79d19e371e889aac8a3781a15e1cb5fb44fce5",
+  "core_commit": "1bda3897678168b1a980d44c3cddde892f417158",
+  "panel_sha256": "62f13e8cd8ed1ac5a38bf1808ff8b25b026e7922f2860c002ed4276346686ece",
+  "source_dates": [
+    "2020-11-06",
+    "2026-08-28"
+  ],
+  "parameters": {
+    "FAMILY_ALPHA": 0.05,
+    "POWER": 0.8,
+    "HYPOTHESES": 110,
+    "BLOCK_LENGTH": 2,
+    "MIN_BLOCKS_PER_GROUP": 20,
+    "BOOTSTRAP_REPLICATES": 100000,
+    "BOOTSTRAP_SEED": 20261018,
+    "MIN_VALID_BOOTSTRAP_FRACTION": 0.99,
+    "CONSISTENT_OFFSETS": 4
+  }
+}
