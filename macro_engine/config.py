@@ -74,6 +74,16 @@ FRED_OBSERVATION_LIMIT = 100_000
 FRED_VINTAGE_LIMIT = 10_000
 FRED_REALTIME_START = "1776-07-04"
 FRED_MISSING_VALUE = "."
+PUBLICATION_REVIEW = {
+    "DTWEXBGS": (
+        "SPEC J+1 business day is not supported by the H.10 publication schedule. "
+        "Daily dollar observations are published the following Monday at 16:15 ET "
+        "(next business day after a federal Monday holiday). Historical publication "
+        "timing needs validation, including the 2006-2009 H.10 publication interruption. "
+        "No alternative availability rule has been implemented. See DECISIONS D003. "
+        "Evidence: https://www.federalreserve.gov/releases/h10/"
+    ),
+}
 HTTP_TIMEOUT_SECONDS = 45
 HTTP_USER_AGENT = "quant-lab-macro-engine/1.0 (research data collection)"
 GPR_URL = "https://www.matteoiacoviello.com/gpr_files/data_gpr_export.xls"
@@ -83,6 +93,8 @@ GPR_START_DATE = "1985-01-01"
 EPU_URL = "https://www.policyuncertainty.com/media/US_Policy_Uncertainty_Data.xlsx"
 EPU_SOURCE_PAGE = "https://www.policyuncertainty.com/us_monthly.html"
 EPU_START_DATE = "1985-01-01"
+EPU_SHEET_NAME = "Main News Index"
+EPU_CREDIT_PREFIX = "Source: 'Measuring Economic Policy Uncertainty'"
 YAHOO_SP500_TICKER = "^GSPC"
 YAHOO_HISTORY_PERIOD = "max"
 YAHOO_AUTO_ADJUST = False
