@@ -64,6 +64,10 @@ OIL_ADDITIONAL_BUSINESS_DAYS = 1
 
 MODULE_ROOT = Path(__file__).resolve().parent
 CACHE_ROOT = MODULE_ROOT / "cache"
+# D006: never select the newest directory or collect automatically on a miss.
+REFERENCE_CACHE = "20261018T143956.868547Z"
+REFERENCE_MANIFEST_SHA256 = "032337011be194aea7231227f61b881d0d57ece9119802820842aad849580c57"
+REFERENCE_REGISTRY_SHA256 = "0f6338dc061df3fd068a181deb539c140e8ded075acf6895e9a936fb9510b39f"
 REGISTRY_FILENAME = "source_registry.csv"
 MANIFEST_FILENAME = "run_manifest.json"
 REGISTRY_SCHEMA_VERSION = 1
@@ -188,7 +192,7 @@ SERIES = (
     SeriesSpec(
         "SP500",
         "Volatilité réalisée S&P 500",
-        "Bloomberg; explicit Yahoo fallback",
+        "Yahoo Finance ^GSPC; approved MVP source (D005)",
         "daily",
         "log_return_std_20_sessions_annualized_sqrt_252",
         "Crédit et stress",

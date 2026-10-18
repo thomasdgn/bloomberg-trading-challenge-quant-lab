@@ -56,6 +56,8 @@ class CacheRun:
         return cls(path, now)
 
     def write_bytes(self, name: str, payload: bytes) -> Path:
+        if self.root.resolve() == (cfg.CACHE_ROOT / cfg.REFERENCE_CACHE).resolve():
+            raise CollectionError("D006: the reference cache is read-only.")
         if not re.fullmatch(r"[A-Za-z0-9_.-]+", name):
             raise CollectionError("Cache filename must be a simple relative filename.")
         path = self.root / name
