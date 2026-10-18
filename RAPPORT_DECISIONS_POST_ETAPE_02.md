@@ -86,7 +86,7 @@ Contrat à appliquer aux étapes suivantes :
 3. Ne jamais muter ce cache ou ses métadonnées.
 4. Exiger une décision explicite avant toute nouvelle collecte de référence.
 
-Une clarification a été demandée entre « épingler dans config.py » et « commit documentaire uniquement ». **Sans levée de cette restriction, aucun fichier Python n'est modifié.** Le pin est consigné ici et dans DECISIONS.md ; la constante et le verrou de lecture doivent être ajoutés avant tout traitement de l'étape 03, une fois la portée confirmée.
+Clarification explicite reçue de l'utilisateur le 18 octobre 2026 : **documentation uniquement ; constante à l'étape 03**. Aucun fichier Python n'est modifié dans ce complément. Le pin est consigné ici et dans DECISIONS.md ; la constante et le verrou de lecture seront ajoutés après « GO ÉTAPE 03 », avant tout traitement de cette étape.
 
 ### D007 — Troncature quand l'historique est trop court
 

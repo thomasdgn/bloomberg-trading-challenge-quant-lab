@@ -103,7 +103,7 @@ Toutes les étapes suivantes devront lire uniquement ce cache, vérifier ses emp
 
 Le registre source_registry.csv et le manifeste run_manifest.json restent inchangés. Les requêtes dollar de ce complément sont des preuves documentaires hors cache ; elles ne constituent pas un nouveau jeu de référence.
 
-L'ajout d'une constante et l'application du verrou de lecture dans config.py sont à effectuer avant tout traitement de l'étape 03, sous réserve de la clarification « commit documentaire uniquement ». Aucun comportement de collecte ou de lecture n'est changé dans le présent complément.
+Clarification explicite de l'utilisateur le 18 octobre 2026 : **documentation uniquement ; constante à l'étape 03**. L'ajout de la constante et l'application du verrou de lecture dans config.py seront effectués uniquement après le message « GO ÉTAPE 03 », avant tout traitement de cette étape. Aucun comportement de collecte ou de lecture n'est changé dans le présent complément.
 
 ## D007 — Troncature sans historique suffisant
 
