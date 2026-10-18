@@ -42,3 +42,10 @@ dist/
 Thumbs.db
 Desktop.ini
 ~$*
+
+# Macro engine: local cache and generated outputs
+macro_engine/cache/
+*.parquet
+macro_*.csv
+macro_diagnostics.html
+run_manifest.json
