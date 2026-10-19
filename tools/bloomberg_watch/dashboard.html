@@ -1,0 +1,58 @@
+<!doctype html><html lang="fr"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Veille Bloomberg — quant-lab</title>
+<style>$style</style><header><h1>Veille macro · fin de challenge</h1>
+<div>Bloomberg et sources officielles · jusqu'au 13 novembre 2026</div></header><main>
+<p class="notice">Veille prospective indépendante. Aucun signal d'achat ou vente.
+Les ordres déclarés ne sont pas considérés exécutés sans confirmation.</p>
+<span class="badge">$count observations tracées</span>
+<span class="badge">Sources Bloomberg consultées : $bloomberg_count</span>
+<span class="badge">État : $holdings</span>
+<section><h2>Faits nouveaux — 24 h</h2>$cards</section>
+<section><h2>Calendrier connu</h2>$calendar
+<p class="muted">$warning</p></section>
+<section><h2>Ajouter une observation</h2><p>Lire la source puis résumer avec vos propres mots.
+La collecte est horodatée automatiquement ; une correction crée une nouvelle version.</p>
+<form action="/add" method="post"><input type="hidden" name="csrf" value="$token">
+<div class="grid"><div><label for="entity_id">Référence de suivi — facultative</label>
+<input id="entity_id" name="entity_id" placeholder="Créée automatiquement si vide"></div>
+<div><label for="kind">Type</label><select id="kind" name="kind"><option value="news">Fait / nouvelle</option>
+<option value="calendar">Événement à venir / consensus</option><option value="release">Chiffre publié</option>
+<option value="analysis">Avis / prévision d'analyste</option></select></div></div>
+<label for="title">Titre court</label><input id="title" name="title" maxlength="240" required>
+<label for="source_url">Lien de la source</label><input id="source_url" name="source_url" type="url" required>
+<div class="grid"><div><label for="source_access">Lecture de la source</label>
+<select id="source_access" name="source_access"><option value="read_full">Source consultée intégralement</option>
+<option value="headline_only">Titre / aperçu seulement</option><option value="unavailable">Accès indisponible</option></select></div>
+<div><label for="source_published_at">Heure de la version source, avec fuseau</label>
+<input id="source_published_at" name="source_published_at" placeholder="2026-10-19T14:30:00+02:00">
+<small>Laisser vide si inconnue. Utiliser la mise à jour de la version lue.</small></div></div>
+<label for="source_version">Version lue</label><select id="source_version" name="source_version">
+<option value="unknown">Heure inconnue</option><option value="published">Publication initiale</option>
+<option value="updated">Mise à jour</option></select>
+<label for="fact">Faits constatés</label><textarea id="fact" name="fact" maxlength="1600"></textarea>
+<label for="interpretation">Interprétation séparée — facultative</label>
+<textarea id="interpretation" name="interpretation" maxlength="1000"></textarea>
+<div class="grid"><div><label for="themes">Thèmes, séparés par virgules</label>
+<input id="themes" name="themes" placeholder="rates, technology, credit"></div>
+<div><label for="currencies">Devises, séparées par virgules</label>
+<input id="currencies" name="currencies" placeholder="USD, JPY, KRW"></div>
+<div><label for="regions">Marchés à suivre, séparés par virgules</label>
+<input id="regions" name="regions" placeholder="US, JP, KR"></div>
+<div><label for="tickers">Titres explicitement concernés, séparés par virgules</label>
+<input id="tickers" name="tickers" placeholder="Identifiants Bloomberg complets"></div></div>
+<details><summary>Calendrier, consensus et chiffres publiés</summary><div class="grid">
+<div><label for="event_date">Date de l'événement</label><input id="event_date" name="event_date" type="date"></div>
+<div><label for="event_at">Heure exacte avec fuseau — facultative</label><input id="event_at" name="event_at"></div>
+<div><label for="event_timezone">Fuseau de l'événement</label><select id="event_timezone" name="event_timezone">
+<option>America/New_York</option><option>Asia/Tokyo</option><option>Asia/Seoul</option><option>Europe/Paris</option></select></div>
+<div><label for="unit">Unité exacte</label><input id="unit" name="unit" placeholder="%, points, milliers"></div>
+<div><label for="consensus">Consensus — avant publication uniquement</label><input id="consensus" name="consensus" type="number" step="any"></div>
+<div><label for="actual">Chiffre réalisé — publication uniquement</label><input id="actual" name="actual" type="number" step="any"></div>
+<div><label for="previous_value">Valeur précédente déclarée</label><input id="previous_value" name="previous_value" type="number" step="any"></div>
+<div><label for="revised_previous">Valeur précédente révisée</label><input id="revised_previous" name="revised_previous" type="number" step="any"></div></div>
+<label for="consensus_ref">Consensus archivé à utiliser pour la surprise</label>
+<select id="consensus_ref" name="consensus_ref">$options</select></details>
+<button type="submit">Enregistrer dans le journal</button></form></section>
+<p><a href="/report">Lire le rapport quotidien complet</a></p>
+<p class="muted">Les rapprochements thématiques ne mesurent pas les poids ou le risque du portefeuille.
+Les corrections restent datées du jour de leur enregistrement.</p></main></html>
