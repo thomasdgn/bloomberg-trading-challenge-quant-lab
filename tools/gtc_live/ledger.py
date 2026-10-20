@@ -127,7 +127,9 @@ def reconcile(snapshot: dict[str, Any], *, max_quote_age_days: int = 4) -> dict[
         if side == "BUY":
             limit = positive(order.get("limit_price_local"), f"{oid} limit_price_local")
             raw = next(x for x in raw_instruments if x["id"] == ticker)
-            price_limit_usd = limit * float(raw["price_unit_multiplier"]) * float(raw["usd_per_unit"])
+            price_limit_usd = (
+                limit * float(raw["price_unit_multiplier"]) * float(raw["usd_per_unit"])
+            )
             # Reserve the WORST of latest mark and submitted limit; fills are not assumed.
             worst = max(price_limit_usd, instruments[ticker]["price_usd"])
             reserved += qty * worst
