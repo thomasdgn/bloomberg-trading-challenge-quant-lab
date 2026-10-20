@@ -1,0 +1,45 @@
+name: Temporary final Twin formatting (branch only)
+
+on:
+  push:
+    branches: [feature/gtc-digital-twin-20261021]
+    paths: [".github/workflows/format-gtc-twin-final.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  approved-branch-only:
+    if: github.repository == 'thomasdgn/bloomberg-trading-challenge-quant-lab' && github.ref == 'refs/heads/feature/gtc-digital-twin-20261021'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: python -m pip install -r requirements.txt
+      - name: Format and lint ONLY new Twin modules
+        run: |
+          python -m ruff format tools/gtc_twin
+          python -m ruff check tools/gtc_twin
+          python -m ruff format --check tools/gtc_twin
+      - name: Run all new synthetic regression tests before push
+        run: python -m pytest -q tools/gtc_twin/tests
+      - name: Simulate and stress test fictional strategy data
+        run: |
+          python -m tools.gtc_twin.demo --output outputs/gtc_twin/demo-input.json
+          python -m tools.gtc_twin simulate --input outputs/gtc_twin/demo-input.json --output outputs/gtc_twin/demo
+          python -m tools.gtc_twin sensitivity --input outputs/gtc_twin/demo-input.json --output outputs/gtc_twin/sensitivity.json
+      - name: Commit only formatting on named feature branch
+        shell: bash
+        run: |
+          if ! git diff --quiet -- tools/gtc_twin; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -- tools/gtc_twin
+            git commit -m "style(twin): format audited sensitivity code after test pass"
+            git push origin HEAD:refs/heads/feature/gtc-digital-twin-20261021
+          fi
