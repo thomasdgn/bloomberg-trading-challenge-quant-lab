@@ -32,7 +32,9 @@ def build_parser() -> argparse.ArgumentParser:
         if name == "freshness":
             cmd.add_argument("--file-root", default=None, help="Root for optional hash checks")
         if name == "horizon":
-            cmd.add_argument("--calendar", required=True, help="Verified exchange sessions JSON list")
+            cmd.add_argument(
+                "--calendar", required=True, help="Verified exchange sessions JSON list"
+            )
     return parser
 
 
