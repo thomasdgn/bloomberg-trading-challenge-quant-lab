@@ -41,11 +41,15 @@ jobs:
         run: |
           python -m tools.gtc_twin.demo --output outputs/gtc_twin/demo-input.json
           python -m tools.gtc_twin simulate --input outputs/gtc_twin/demo-input.json --output outputs/gtc_twin/reviewer-demo
+          python -m tools.gtc_twin sensitivity --input outputs/gtc_twin/demo-input.json --output outputs/gtc_twin/reviewer-sensitivity.json
           test -s outputs/gtc_twin/reviewer-demo/report.html
           test -s outputs/gtc_twin/reviewer-demo/simulation.json
+          test -s outputs/gtc_twin/reviewer-sensitivity.json
       - name: Publish fictional HTML demo only
         uses: actions/upload-artifact@v4
         with:
           name: gtc-digital-twin-synthetic-demo
-          path: outputs/gtc_twin/reviewer-demo/
+          path: |
+            outputs/gtc_twin/reviewer-demo/
+            outputs/gtc_twin/reviewer-sensitivity.json
           retention-days: 14
