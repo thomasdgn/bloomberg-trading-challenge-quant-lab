@@ -1,4 +1,5 @@
 """Trade-aware accounting tests with invented fills, cash and WLS levels."""
+
 from __future__ import annotations
 
 from copy import deepcopy
@@ -23,13 +24,28 @@ def example() -> tuple[dict, dict, list[dict], dict, dict]:
         inst["price_local"] += 10.0 if inst["id"] == "SYNTH UN Equity" else 5.0
     after["positions"].append({"id": "SYNTH_B UW Equity", "quantity": 1})
     after["cash_usd"] = 749.0
-    fills = [{"fill_id": "F1", "id": "SYNTH_B UW Equity", "status": "FILLED",
-              "side": "BUY", "quantity": 1, "execution_price_local": 50.0,
-              "price_unit_multiplier": 1.0, "currency": "USD",
-              "usd_per_unit": 1.0, "fee_usd": 1.0,
-              "executed_at": "2026-10-21T14:35:00+00:00"}]
-    b0 = {"verified": True, "source": "synthetic WLS", "basis": "PRICE_RETURN",
-          "as_of_date": "2026-10-20", "level": 1000.0}
+    fills = [
+        {
+            "fill_id": "F1",
+            "id": "SYNTH_B UW Equity",
+            "status": "FILLED",
+            "side": "BUY",
+            "quantity": 1,
+            "execution_price_local": 50.0,
+            "price_unit_multiplier": 1.0,
+            "currency": "USD",
+            "usd_per_unit": 1.0,
+            "fee_usd": 1.0,
+            "executed_at": "2026-10-21T14:35:00+00:00",
+        }
+    ]
+    b0 = {
+        "verified": True,
+        "source": "synthetic WLS",
+        "basis": "PRICE_RETURN",
+        "as_of_date": "2026-10-20",
+        "level": 1000.0,
+    }
     b1 = {**b0, "as_of_date": "2026-10-21", "level": 1010.0}
     return before, after, fills, b0, b1
 

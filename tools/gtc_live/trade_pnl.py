@@ -3,6 +3,7 @@
 All effects measured in verified USD marks. No orders are sent. No external flows,
 dividends, splits, FX financing or interim time-weighted returns are supported.
 """
+
 from __future__ import annotations
 
 from datetime import UTC, date, datetime
@@ -101,12 +102,21 @@ def reconcile_filled_pnl(
         trade_changes[ticker] = trade_changes.get(ticker, 0.0) + (
             sign * quantity * (end_mark - price * unit * fx) - fee
         )
-        entries.append({"fill_id": fill_id, "id": ticker, "side": side,
-                        "quantity": quantity, "fill_notional_usd": value,
-                        "fee_usd": fee, "executed_at_utc": instant.isoformat()})
+        entries.append(
+            {
+                "fill_id": fill_id,
+                "id": ticker,
+                "side": side,
+                "quantity": quantity,
+                "fill_notional_usd": value,
+                "fee_usd": fee,
+                "executed_at_utc": instant.isoformat(),
+            }
+        )
     for ticker in set(expected_quantities) | set(target_quantities):
-        if not isclose(expected_quantities.get(ticker, 0.0),
-                       target_quantities.get(ticker, 0.0), abs_tol=1e-8):
+        if not isclose(
+            expected_quantities.get(ticker, 0.0), target_quantities.get(ticker, 0.0), abs_tol=1e-8
+        ):
             raise DataBlocked(f"{ticker}: executed fill quantities do not reconcile")
     tolerance = max(0.01, before["nav_usd"] * 1e-8)
     if abs(expected_cash - after["cash_usd"]) > tolerance:
@@ -119,21 +129,29 @@ def reconcile_filled_pnl(
         if ticker not in before["instruments"] or ticker not in after["instruments"]:
             raise DataBlocked(f"{ticker}: missing original/end mark")
         start_qty = next((p["quantity"] for p in before["positions"] if p["id"] == ticker), 0.0)
-        price_delta = (after["instruments"][ticker]["price_usd"]
-                       - before["instruments"][ticker]["price_usd"])
+        price_delta = (
+            after["instruments"][ticker]["price_usd"] - before["instruments"][ticker]["price_usd"]
+        )
         pnl = start_qty * price_delta + trade_changes.get(ticker, 0.0)
-        contributors.append({"id": ticker, "pnl_usd": pnl,
-                             "portfolio_contribution": pnl / before["nav_usd"]})
+        contributors.append(
+            {"id": ticker, "pnl_usd": pnl, "portfolio_contribution": pnl / before["nav_usd"]}
+        )
     total = sum(r["pnl_usd"] for r in contributors)
     if abs(total - (after["nav_usd"] - before["nav_usd"])) > tolerance:
         raise DataBlocked("trade-aware P&L contributors fail reconciliation")
     return {
-        "status": "PASS", "advisory_only": True,
-        "start_date": before["as_of_date"], "end_date": after["as_of_date"],
-        "fills_reconciled": len(entries), "fills": entries,
-        "nav_start_usd": before["nav_usd"], "nav_end_usd": after["nav_usd"],
-        "pnl_usd": total, "portfolio_return": total / before["nav_usd"],
-        "benchmark_return": b1 / b0 - 1, "active_return": active,
+        "status": "PASS",
+        "advisory_only": True,
+        "start_date": before["as_of_date"],
+        "end_date": after["as_of_date"],
+        "fills_reconciled": len(entries),
+        "fills": entries,
+        "nav_start_usd": before["nav_usd"],
+        "nav_end_usd": after["nav_usd"],
+        "pnl_usd": total,
+        "portfolio_return": total / before["nav_usd"],
+        "benchmark_return": b1 / b0 - 1,
+        "active_return": active,
         "pnl_contributors": contributors,
         "limitation": "Simple period return; no external flows, dividends or corporate actions",
     }

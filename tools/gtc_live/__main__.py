@@ -29,8 +29,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     commands = parser.add_subparsers(dest="command", required=True)
     for name in (
-        "reconcile", "pretrade", "freshness", "pnl", "horizon",
-        "stress", "session", "filled-pnl",
+        "reconcile",
+        "pretrade",
+        "freshness",
+        "pnl",
+        "horizon",
+        "stress",
+        "session",
+        "filled-pnl",
     ):
         cmd = commands.add_parser(name)
         cmd.add_argument("--input", required=True, help="Local JSON source, never committed")
@@ -63,8 +69,11 @@ def run(args: argparse.Namespace) -> Any:
         return assess_session(data)
     if args.command == "filled-pnl":
         return reconcile_filled_pnl(
-            data["start"], data["end"], data["fills"],
-            data["benchmark_start"], data["benchmark_end"],
+            data["start"],
+            data["end"],
+            data["fills"],
+            data["benchmark_start"],
+            data["benchmark_end"],
         )
     raise DataBlocked("unsupported command")
 
