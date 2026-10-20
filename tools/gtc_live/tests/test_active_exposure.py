@@ -1,8 +1,6 @@
 """Verified whole-index active exposure invariants."""
 from __future__ import annotations
 
-from copy import deepcopy
-
 import pytest
 
 from tools.gtc_live.active_exposure import compare_active_exposures
@@ -27,8 +25,12 @@ def test_active_weight_and_cash_are_consistent() -> None:
     result = compare_active_exposures(verified_snapshot(), index())
     assert result["active_share"] == pytest.approx(0.8)
     assert result["active_weight_total"] == pytest.approx(0.0)
-    assert result["group_exposures"]["sector"]["Technology"]["active_weight"] == pytest.approx(-0.4)
-    assert result["group_exposures"]["sector"]["USD_CASH"]["active_weight"] == pytest.approx(0.8)
+    assert result["group_exposures"]["sector"]["Technology"]["active_weight"] == pytest.approx(
+        -0.4
+    )
+    assert result["group_exposures"]["sector"]["USD_CASH"]["active_weight"] == pytest.approx(
+        0.8
+    )
 
 
 def test_partial_weight_file_blocks() -> None:
