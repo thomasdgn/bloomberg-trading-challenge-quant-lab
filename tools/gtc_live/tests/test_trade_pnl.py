@@ -6,8 +6,8 @@ from copy import deepcopy
 import pytest
 
 from tools.gtc_live.ledger import DataBlocked
-from tools.gtc_live.trade_pnl import reconcile_filled_pnl
 from tools.gtc_live.tests.test_ledger import verified_snapshot
+from tools.gtc_live.trade_pnl import reconcile_filled_pnl
 
 
 def example() -> tuple[dict, dict, list[dict], dict, dict]:
