@@ -30,6 +30,7 @@ python -m ruff format --check tools/gtc_twin
 
 python -m tools.gtc_twin.demo --output outputs/gtc_twin/demo-input.json
 python -m tools.gtc_twin simulate --input outputs/gtc_twin/demo-input.json --output outputs/gtc_twin/demo-run-001
+python -m tools.gtc_twin sensitivity --input outputs/gtc_twin/demo-input.json --output outputs/gtc_twin/demo-sensitivity.json
 ```
 
 Open `outputs/gtc_twin/demo-run-001/report.html` locally. The demonstration uses **SIMULATED_ALPHA Equity / SIMULATED_BETA Equity** and an artificial WLS-return series. Even though the invented snapshot claims WLS membership, these tickers and data are *not real*. The tool does not independently authenticate operator declarations. Use a new output directory for each run: deliberate no-overwrite.
@@ -82,6 +83,29 @@ Checkpoint/final JSON:
 ```
 
 Returns are **fractional, cumulative since decision date**, not percentages, and must represent the same window and price-return basis. This sample is fabricated. Checkpoints are limited to days *strictly before* the 13 November deadline: they **do not** compare a partial-period actual return with a full-horizon forecast. A final outcome is only accepted for a verified 13 November observation and after that day has arrived. The journal is append-only, verifies every SHA-256 link and blocks duplicate outcomes. Hash chaining can detect accidental alterations but **cannot prove authenticity or prevent a sophisticated complete rewrite**; archive an independent digest if required.
+
+## Robustness grid: detect a fragile decision
+
+The optional `sensitivity` command evaluates a research grid of cost assumptions
+and moving-block lengths, using the same verified input panel. It writes a private
+JSON file below `outputs/gtc_twin/`, refuses overwrite, and reports each
+scenario's median WLS-relative outcome and its paired difference from HOLD.
+
+A unique winner is counted only when its median differs materially from alternatives;
+ties are explicitly recorded. **Winner counts across grid cells are NOT independent
+trials and not a probability that a strategy will win**: the same historical returns
+are resampled repeatedly. If a proposed rebalance appears favorable only with
+negligible costs or one bootstrap block, the conclusion is fragile and should
+not trigger any automatic order.
+
+## Contribution provenance
+
+For a chronology grounded in **actual original GitHub commit authorship**, see
+[`docs/CONTRIBUTION_TRAIL_GTC.md`](CONTRIBUTION_TRAIL_GTC.md).
+This includes the original October 7–8 features/Elastic Net base, which was
+delivered in only a few but substantial commits, and the separately reviewable
+later live-ops and Digital Twin work. Number of pushes alone does not capture
+engineering contribution.
 
 ## Security, scope and review limitations
 
