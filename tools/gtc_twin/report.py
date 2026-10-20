@@ -1,4 +1,5 @@
 """Standalone, no-JavaScript investment research report (safe escaped HTML)."""
+
 from __future__ import annotations
 
 from html import escape
@@ -91,9 +92,7 @@ def render_html(report: dict[str, Any]) -> str:
               <div class="dot" style="left:{center:.1f}%;background:{color}"></div>
             </div></td></tr>"""
         )
-    disclaimer = "".join(
-        "<li>" + escape(str(text)) + "</li>" for text in report["disclosures"]
-    )
+    disclaimer = "".join("<li>" + escape(str(text)) + "</li>" for text in report["disclosures"])
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">

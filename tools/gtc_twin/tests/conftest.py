@@ -1,4 +1,5 @@
 """Purely synthetic GTC Digital Twin fixtures; no real Bloomberg holdings."""
+
 from __future__ import annotations
 
 from datetime import date, timedelta
@@ -11,10 +12,15 @@ def example_payload() -> dict:
     as_of = date(2026, 10, 21)
     instruments = [
         {
-            "id": ticker, "instrument_type": "EQUITY", "wls_member": True,
-            "membership_asof": str(as_of), "price_asof": str(as_of),
-            "currency": "USD", "price_local": 100,
-            "price_unit_multiplier": 1, "usd_per_unit": 1,
+            "id": ticker,
+            "instrument_type": "EQUITY",
+            "wls_member": True,
+            "membership_asof": str(as_of),
+            "price_asof": str(as_of),
+            "currency": "USD",
+            "price_local": 100,
+            "price_unit_multiplier": 1,
+            "usd_per_unit": 1,
         }
         for ticker in ("SYNTH_A UN Equity", "SYNTH_B UN Equity")
     ]
@@ -45,7 +51,8 @@ def example_payload() -> dict:
     return {
         "decision_cutoff": str(as_of),
         "snapshot": {
-            "as_of_date": str(as_of), "cash_usd": 600,
+            "as_of_date": str(as_of),
+            "cash_usd": 600,
             "instruments": instruments,
             "positions": [
                 {"id": "SYNTH_A UN Equity", "quantity": 2},

@@ -3,6 +3,7 @@
 This is a transparent stress exploration, NOT calibrated probabilities, expected
 returns, an execution forecast, or an estimate of global competition ranking.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -17,7 +18,10 @@ from tools.gtc_twin.schema import CASH, prepare
 
 def fingerprint(document: Any) -> str:
     raw = json.dumps(
-        document, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+        document,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
         allow_nan=False,
     ).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()
@@ -102,7 +106,9 @@ def simulate(payload: dict[str, Any]) -> dict[str, Any]:
         sequence = sequence[:length]
         trial = {
             name: _path(
-                history, sequence, target,
+                history,
+                sequence,
+                target,
                 scenario_details[name]["one_off_cost_fraction_of_nav"],
             )
             for name, target in weights.items()
@@ -131,21 +137,23 @@ def simulate(payload: dict[str, Any]) -> dict[str, Any]:
             paired = improvement[name]
             res["paired_improvement_over_hold_median"] = _percentile(paired, 0.50)
             res["paired_improvement_over_hold_p10"] = _percentile(paired, 0.10)
-            res["fraction_simulations_improving_hold"] = (
-                sum(x > 0 for x in paired) / paths
-            )
+            res["fraction_simulations_improving_hold"] = sum(x > 0 for x in paired) / paths
         summaries[name] = res
     return {
         "status": "SIMULATION_ONLY",
         "execution_authorized": False,
         "input_sha256": fingerprint(payload),
-        "run_id": fingerprint({
-            "inputs": fingerprint(payload), "implementation": "gtc-digital-twin-v1",
-        })[:20],
+        "run_id": fingerprint(
+            {
+                "inputs": fingerprint(payload),
+                "implementation": "gtc-digital-twin-v1",
+            }
+        )[:20],
         "method": {
             "name": "paired moving-block bootstrap",
             "historical_panel": "joint daily price-only USD returns for current candidate set",
-            "paths": paths, "seed": inputs["seed"],
+            "paths": paths,
+            "seed": inputs["seed"],
             "block_size_sessions": block,
             "observed_history_rows": len(history),
             "history_start": history[0]["date"],

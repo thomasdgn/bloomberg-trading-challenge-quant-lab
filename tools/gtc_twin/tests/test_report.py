@@ -1,4 +1,5 @@
 """Self-contained HTML and sanitized report checks."""
+
 from __future__ import annotations
 
 from copy import deepcopy
@@ -21,7 +22,7 @@ def test_report_is_standalone_and_contains_all_scenarios(example_payload) -> Non
     assert result["run_id"] in html
     assert "calibrated probabilities" in html.lower() or "NOT calibrated" in html
     assert "<script" not in html.lower()
-    assert "src=\"http" not in html
+    assert 'src="http' not in html
 
 
 def test_input_provenance_cannot_inject_html(example_payload) -> None:

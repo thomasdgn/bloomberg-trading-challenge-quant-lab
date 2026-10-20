@@ -1,4 +1,5 @@
 """Strict input checks: verified, contemporary USD price-return panels only."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -56,7 +57,8 @@ def prepare(payload: dict[str, Any]) -> dict[str, Any]:
     held = {row["id"]: row["weight"] for row in state["positions"]}
     hold = validate_weights(
         {**held, CASH: state["cash_usd"] / state["nav_usd"]},
-        instruments, "HOLD",
+        instruments,
+        "HOLD",
     )
     target = validate_weights(payload.get("rebalance_weights"), instruments, "REBALANCE")
     scale = _number(payload.get("defensive_equity_scale"), "defensive_equity_scale")
@@ -145,12 +147,21 @@ def prepare(payload: dict[str, Any]) -> dict[str, Any]:
         raise DataBlocked("bootstrap block longer than available history")
 
     return {
-        "as_of_date": str(as_of), "challenge_end": str(END_DATE),
-        "horizon_sessions": len(future), "future_sessions": [str(day) for day in future],
-        "paths": paths, "seed": seed, "block": block, "cost_bps": costs,
-        "source": verification["source"], "history": history,
-        "holdings": hold, "scenarios": {
-            "HOLD": hold, "REBALANCE": target, "DEFENSIVE": defensive,
+        "as_of_date": str(as_of),
+        "challenge_end": str(END_DATE),
+        "horizon_sessions": len(future),
+        "future_sessions": [str(day) for day in future],
+        "paths": paths,
+        "seed": seed,
+        "block": block,
+        "cost_bps": costs,
+        "source": verification["source"],
+        "history": history,
+        "holdings": hold,
+        "scenarios": {
+            "HOLD": hold,
+            "REBALANCE": target,
+            "DEFENSIVE": defensive,
         },
         "instruments": sorted(instruments),
         "defensive_equity_scale": scale,

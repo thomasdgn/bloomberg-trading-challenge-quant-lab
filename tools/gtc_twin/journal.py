@@ -4,6 +4,7 @@ This provides tamper evidence against accidental edits, NOT non-repudiation:
 a malicious party can rewrite the complete file and its hashes. Retain an
 independent exported digest if stronger external auditability is needed.
 """
+
 from __future__ import annotations
 
 import json
@@ -29,13 +30,17 @@ def _path_inside(journal: str | Path, root: str | Path) -> Path:
     return resolved
 
 
-def verify_journal(
-    journal: str | Path, *, root: str | Path = "outputs/gtc_twin"
-) -> dict[str, Any]:
+def verify_journal(journal: str | Path, *, root: str | Path = "outputs/gtc_twin") -> dict[str, Any]:
     path = _path_inside(journal, root)
     if not path.is_file():
-        return {"status": "PASS", "events": 0, "last_sha256": ZERO,
-                "decisions": 0, "checkpoints": 0, "final_outcomes": 0}
+        return {
+            "status": "PASS",
+            "events": 0,
+            "last_sha256": ZERO,
+            "decisions": 0,
+            "checkpoints": 0,
+            "final_outcomes": 0,
+        }
     expected = ZERO
     seen_ids: dict[str, str] = {}
     checkpoints = set()
@@ -81,10 +86,14 @@ def verify_journal(
                 final_outcomes.add(run)
             counts[kind] += 1
             expected = signature
-    return {"status": "PASS", "events": sum(counts.values()),
-            "last_sha256": expected, "decisions": counts["DECISION"],
-            "checkpoints": counts["CHECKPOINT"],
-            "final_outcomes": counts["FINAL_OUTCOME"]}
+    return {
+        "status": "PASS",
+        "events": sum(counts.values()),
+        "last_sha256": expected,
+        "decisions": counts["DECISION"],
+        "checkpoints": counts["CHECKPOINT"],
+        "final_outcomes": counts["FINAL_OUTCOME"],
+    }
 
 
 def _observed_return(value: Any, label: str) -> float:
@@ -118,9 +127,11 @@ def _observed(data: dict[str, Any], *, decision_date: date, today: date) -> dict
     wls = _observed_return(data.get("wls_return"), "wls_return")
     return {
         "observation_date": str(stamp),
-        "portfolio_return": portfolio, "wls_return": wls,
+        "portfolio_return": portfolio,
+        "wls_return": wls,
         "relative_wealth": (1 + portfolio) / (1 + wls) - 1,
-        "source": str(data["source"]), "verified_by_operator": True,
+        "source": str(data["source"]),
+        "verified_by_operator": True,
         "benchmark_id": "WLS Index",
     }
 
@@ -150,13 +161,17 @@ def _validate_event(
         if len(notes) > 2000:
             raise DataBlocked("decision note exceeds 2000 characters")
         return {
-            "run_id": run, "decision_date": str(at), "chosen_scenario": chosen,
+            "run_id": run,
+            "decision_date": str(at),
+            "chosen_scenario": chosen,
             "simulation_sha256": fingerprint(report),
             "input_sha256": report["input_sha256"],
             "registered_forecast_median": report["summaries"][chosen]["relative_wealth_median"],
             "registered_forecast_p10": report["summaries"][chosen]["relative_wealth_p10"],
             "registered_forecast_p90": report["summaries"][chosen]["relative_wealth_p90"],
-            "note": notes, "simulation_only": True, "execution_authorized": False,
+            "note": notes,
+            "simulation_only": True,
+            "execution_authorized": False,
         }
     if kind not in {"CHECKPOINT", "FINAL_OUTCOME"}:
         raise DataBlocked("event kind unsupported")
@@ -172,14 +187,14 @@ def _validate_event(
     if kind == "FINAL_OUTCOME" and stamp != END_DATE:
         raise DataBlocked("full-horizon outcome requires verified 13 Nov date")
     if kind == "CHECKPOINT" and any(
-        e["kind"] == "CHECKPOINT" and e["data"]["run_id"] == run
+        e["kind"] == "CHECKPOINT"
+        and e["data"]["run_id"] == run
         and e["data"]["observation_date"] == observed["observation_date"]
         for e in events
     ):
         raise DataBlocked("duplicate checkpoint for date")
     if kind == "FINAL_OUTCOME" and any(
-        e["kind"] == "FINAL_OUTCOME" and e["data"]["run_id"] == run
-        for e in events
+        e["kind"] == "FINAL_OUTCOME" and e["data"]["run_id"] == run for e in events
     ):
         raise DataBlocked("final outcome already recorded")
     observed["run_id"] = run
@@ -190,8 +205,7 @@ def _validate_event(
     )
     if kind == "FINAL_OUTCOME":
         observed["forecast_median_error"] = (
-            observed["relative_wealth"] -
-            decisions[0]["data"]["registered_forecast_median"]
+            observed["relative_wealth"] - decisions[0]["data"]["registered_forecast_median"]
         )
     return observed
 
@@ -221,14 +235,14 @@ def append_event(
         if path.is_file():
             with path.open(encoding="utf-8") as handle:
                 events = [json.loads(line) for line in handle]
-        validated = _validate_event(
-            kind, data, events, today=today or datetime.now(UTC).date()
-        )
+        validated = _validate_event(kind, data, events, today=today or datetime.now(UTC).date())
         prev = events[-1]["sha256"] if events else ZERO
         body = {
-            "seq": len(events) + 1, "kind": kind,
+            "seq": len(events) + 1,
+            "kind": kind,
             "created_at_utc": datetime.now(UTC).isoformat(),
-            "prev_sha256": prev, "data": validated,
+            "prev_sha256": prev,
+            "data": validated,
         }
         record = {**body, "sha256": fingerprint(body)}
         with path.open("a", encoding="utf-8", newline="\n") as handle:
@@ -236,8 +250,13 @@ def append_event(
             handle.write("\n")
             handle.flush()
             os.fsync(handle.fileno())
-        return {"status": "RECORDED", "seq": record["seq"],
-                "kind": kind, "run_id": validated["run_id"],
-                "sha256": record["sha256"], "journal": str(path)}
+        return {
+            "status": "RECORDED",
+            "seq": record["seq"],
+            "kind": kind,
+            "run_id": validated["run_id"],
+            "sha256": record["sha256"],
+            "journal": str(path),
+        }
     finally:
         lock.unlink(missing_ok=True)
