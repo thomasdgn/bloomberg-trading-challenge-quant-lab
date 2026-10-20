@@ -91,7 +91,9 @@ def build_parser() -> argparse.ArgumentParser:
     simulation.add_argument("--output", required=True, help="New directory under outputs/gtc_twin/")
     sensitivity = commands.add_parser("sensitivity", help="Research parameter sensitivity grid")
     sensitivity.add_argument("--input", required=True, help="Verified private JSON")
-    sensitivity.add_argument("--output", required=True, help="New JSON file under outputs/gtc_twin/")
+    sensitivity.add_argument(
+        "--output", required=True, help="New JSON file under outputs/gtc_twin/"
+    )
     decision = commands.add_parser("record-decision", help="Append sealed research decision")
     decision.add_argument("--report", required=True, help="simulation.json path")
     decision.add_argument("--journal", required=True, help="Journal under outputs/gtc_twin/")
@@ -118,7 +120,8 @@ def execute(args: argparse.Namespace) -> dict[str, Any]:
             file.write("\n")
         return {
             "status": result["status"],
-            "output": str(output), "total_cells": result["total_cells"],
+            "output": str(output),
+            "total_cells": result["total_cells"],
             "execution_authorized": False,
         }
     if args.action == "record-decision":
