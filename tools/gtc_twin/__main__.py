@@ -12,6 +12,7 @@ from tools.gtc_live.ledger import DataBlocked
 from tools.gtc_twin.engine import fingerprint, simulate
 from tools.gtc_twin.journal import append_event, verify_journal
 from tools.gtc_twin.report import render_html
+from tools.gtc_twin.robustness import sensitivity_grid
 
 
 def read_json(path: str) -> dict[str, Any]:
@@ -88,6 +89,9 @@ def build_parser() -> argparse.ArgumentParser:
     simulation = commands.add_parser("simulate", help="Research scenario comparison")
     simulation.add_argument("--input", required=True, help="Verified private JSON")
     simulation.add_argument("--output", required=True, help="New directory under outputs/gtc_twin/")
+    sensitivity = commands.add_parser("sensitivity", help="Research parameter sensitivity grid")
+    sensitivity.add_argument("--input", required=True, help="Verified private JSON")
+    sensitivity.add_argument("--output", required=True, help="New JSON file under outputs/gtc_twin/")
     decision = commands.add_parser("record-decision", help="Append sealed research decision")
     decision.add_argument("--report", required=True, help="simulation.json path")
     decision.add_argument("--journal", required=True, help="Journal under outputs/gtc_twin/")
@@ -105,6 +109,18 @@ def build_parser() -> argparse.ArgumentParser:
 def execute(args: argparse.Namespace) -> dict[str, Any]:
     if args.action == "simulate":
         return _write_run(args.output, simulate(read_json(args.input)))
+    if args.action == "sensitivity":
+        output = _under_output_root(args.output)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        result = sensitivity_grid(read_json(args.input))
+        with output.open("x", encoding="utf-8") as file:
+            json.dump(result, file, ensure_ascii=False, indent=2, allow_nan=False)
+            file.write("\n")
+        return {
+            "status": result["status"],
+            "output": str(output), "total_cells": result["total_cells"],
+            "execution_authorized": False,
+        }
     if args.action == "record-decision":
         report = read_json(args.report)
         return append_event(
