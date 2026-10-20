@@ -82,12 +82,34 @@ python -m tools.gtc_live session --input outputs/gtc_live/session.json
 python -m tools.gtc_live stress --input outputs/gtc_live/stress.json
 python -m tools.gtc_live pnl --input outputs/gtc_live/daily.json
 python -m tools.gtc_live filled-pnl --input outputs/gtc_live/fills_day.json
+python -m tools.gtc_live exposures --input outputs/gtc_live/full_wls_weights.json
 python -m tools.gtc_live horizon --input outputs/gtc_live/horizon.json --calendar outputs/gtc_live/nyse_sessions.json
 ```
 
 `stress.json` holds `snapshot` and `scenarios`; each named scenario lists a numeric USD % shock as a fraction for **every** held ticker, with none missing. It computes arithmetic marked P&L and assumes zero shock to USD cash. No scenario likelihood, liquidity impact or model-implied alpha is estimated.
 
 `daily.json` holds `start`, `end`, `benchmark_start`, `benchmark_end`. Benchmark entries require `as_of_date`, `verified:true`, `basis:"PRICE_RETURN"`, `level` and `source`. This P&L helper **intentionally rejects** pending orders, changes in held quantities, changes in cash, and mixed return bases. It is a no-trade daily attribution tool, NOT a real-time fill-aware performance engine. On trading days use verified official TMSG performance and reconcile trades before creating a full trade-aware ledger. For dividends and corporate actions, further total-return support is required.
+
+### Full-WLS active exposure (requires complete member and sector data)
+
+`exposures` expects `{"snapshot": {...}, "index": {...}}` with an executed `snapshot` from above, plus:
+
+```json
+{
+  "verified_full_universe": true,
+  "source": "operator-verified complete WLS weights export",
+  "as_of_date": "2026-10-20",
+  "expected_constituent_count": 2,
+  "constituents": [
+    {"id": "SYNTHETIC_A Equity", "weight": 0.60,
+     "sector": "Technology", "country": "US", "currency": "USD"},
+    {"id": "SYNTHETIC_B Equity", "weight": 0.40,
+     "sector": "Financials", "country": "US", "currency": "USD"}
+  ]
+}
+```
+
+This is **artificial test data**, not a WLS composition. Real input must contain *every* WLS constituent, with complete sector/country/currency classifications, sum weights exactly to 100%, verify the as-of date and match every held ticker. A subset renormalized to 100% is prohibited. The report returns portfolio-minus-index active weights (including USD cash), active share, 20 largest absolute active stock differences and signed sector/country/currency totals. It **does not calculate tracking error, expected return or exposure to company revenues**. Those require historical USD returns, whole-index covariance and validated metadata; do not confuse active share with risk.
 
 ### Trading days: fill-aware simple daily return
 
