@@ -161,10 +161,10 @@ def simulate(payload: dict[str, Any]) -> dict[str, Any]:
             "Fractions are frequencies under historical bootstrap, NOT calibrated probabilities.",
             "This simulation DOES NOT estimate the probability of finishing top 1 globally.",
             "All three scenarios share paired bootstrap paths; assets drift without rebalancing.",
-            "Current verified universe can introduce survivorship bias; results are NOT a backtest.",
-            "Cash in USD does not track WLS; defensive exposure can underperform in rising markets.",
+            "Current-universe selection introduces survivorship bias; not a backtest.",
+            "USD cash does not track WLS; less equity can lose in rising markets.",
             "No validated Elastic Net alpha forecast or execution fill likelihood is injected.",
-            "No dividends, borrow, corporate actions, impact, taxes or FX slippage beyond chosen bps.",
+            "No dividends, corporate actions, impact, taxes or unmodeled FX slippage."
             "Inspect official TMSG P&L, liquidity and eligibility before any human decision.",
         ],
     }
