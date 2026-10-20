@@ -1,4 +1,5 @@
 """All-or-nothing daily session tests."""
+
 from __future__ import annotations
 
 import pytest
@@ -11,12 +12,16 @@ from tools.gtc_live.tests.test_ledger import verified_snapshot
 
 def input_payload() -> dict:
     return {
-        "snapshot": verified_snapshot(), "proposals": [],
+        "snapshot": verified_snapshot(),
+        "proposals": [],
         "feed_manifest": {
             "as_of_date": "2026-10-20",
             "sources": {
-                name: {"verified": True, "observed_date": "2026-10-20",
-                       "provenance": f"operator-confirmed-{name}"}
+                name: {
+                    "verified": True,
+                    "observed_date": "2026-10-20",
+                    "provenance": f"operator-confirmed-{name}",
+                }
                 for name in REQUIRED_SOURCES
             },
         },

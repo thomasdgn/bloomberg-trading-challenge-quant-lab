@@ -1,4 +1,5 @@
 """Daily active P&L attribution tests on fabricated portfolio marks."""
+
 from __future__ import annotations
 
 from copy import deepcopy
@@ -14,10 +15,16 @@ def two_dates() -> tuple[dict, dict, dict, dict]:
     first = verified_snapshot()
     last = deepcopy(first)
     last["as_of_date"] = "2026-10-21"
-    last["instruments"][0].update(price_local=110.0, price_asof="2026-10-21",
-                                   membership_asof="2026-10-21")
-    b0 = {"as_of_date": "2026-10-20", "verified": True, "basis": "PRICE_RETURN",
-          "level": 1000.0, "source": "verified-WLS-example"}
+    last["instruments"][0].update(
+        price_local=110.0, price_asof="2026-10-21", membership_asof="2026-10-21"
+    )
+    b0 = {
+        "as_of_date": "2026-10-20",
+        "verified": True,
+        "basis": "PRICE_RETURN",
+        "level": 1000.0,
+        "source": "verified-WLS-example",
+    }
     b1 = {**b0, "as_of_date": "2026-10-21", "level": 1010.0}
     return first, last, b0, b1
 
@@ -52,9 +59,14 @@ def test_changes_in_holdings_or_cash_block_false_no_trade_pnl() -> None:
 
 def test_pending_order_blocks_simple_attribution() -> None:
     before, after, b0, b1 = two_dates()
-    after["pending_orders"] = [{
-        "order_id": "pending", "status": "OPEN", "side": "SELL",
-        "id": "SYNTH UN Equity", "remaining_quantity": 1,
-    }]
+    after["pending_orders"] = [
+        {
+            "order_id": "pending",
+            "status": "OPEN",
+            "side": "SELL",
+            "id": "SYNTH UN Equity",
+            "remaining_quantity": 1,
+        }
+    ]
     with pytest.raises(DataBlocked, match="pending orders"):
         daily_relative_pnl(before, after, b0, b1)

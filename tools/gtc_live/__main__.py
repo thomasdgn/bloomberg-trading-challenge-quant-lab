@@ -1,4 +1,5 @@
 """Explicitly offline, read-only CLI for verified challenge state."""
+
 from __future__ import annotations
 
 import argparse
@@ -47,8 +48,9 @@ def run(args: argparse.Namespace) -> Any:
     if args.command == "freshness":
         return audit_freshness(data, file_root=args.file_root)
     if args.command == "pnl":
-        return daily_relative_pnl(data["start"], data["end"],
-                                  data["benchmark_start"], data["benchmark_end"])
+        return daily_relative_pnl(
+            data["start"], data["end"], data["benchmark_start"], data["benchmark_end"]
+        )
     if args.command == "horizon":
         return remaining_horizon(data["as_of_date"], read_json(args.calendar))
     if args.command == "stress":
@@ -66,8 +68,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     except (DataBlocked, ValueError, KeyError, OSError, json.JSONDecodeError) as exc:
         # Do not print holdings, raw input or confidential file contents on failure.
-        print(json.dumps({"status": "BLOCKED", "reason": str(exc)},
-                         ensure_ascii=False), file=sys.stderr)
+        print(
+            json.dumps({"status": "BLOCKED", "reason": str(exc)}, ensure_ascii=False),
+            file=sys.stderr,
+        )
         return 2
 
 

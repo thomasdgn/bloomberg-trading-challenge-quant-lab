@@ -1,4 +1,5 @@
 """Conservative PRE-TRADE checks. Never place an order or recycle unfilled sells."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -75,8 +76,9 @@ def check_trade_plan(
             if "limit_price_local" in proposal:
                 raw = next(x for x in snapshot["instruments"] if x["id"] == ticker)
                 limit = positive(proposal["limit_price_local"], f"{oid} limit")
-                unit = max(unit, limit * float(raw["price_unit_multiplier"]) *
-                           float(raw["usd_per_unit"]))
+                unit = max(
+                    unit, limit * float(raw["price_unit_multiplier"]) * float(raw["usd_per_unit"])
+                )
             planned_buy_value[ticker] = planned_buy_value.get(ticker, 0.0) + qty * unit
         else:
             if ticker in pending_buys:
@@ -98,13 +100,18 @@ def check_trade_plan(
         if projected_weight > internal_warning_weight:
             warnings.append(f"{ticker}: potential exposure above internal warning")
     return {
-        "status": "PASS", "advisory_only": True, "as_of_date": state["as_of_date"],
-        "nav_usd": nav, "available_cash_before_usd": state["available_cash_usd"],
+        "status": "PASS",
+        "advisory_only": True,
+        "as_of_date": state["as_of_date"],
+        "nav_usd": nav,
+        "available_cash_before_usd": state["available_cash_usd"],
         "cash_reserved_for_proposals_usd": planned_cost,
         "cash_after_reservations_usd": max(0.0, state["available_cash_usd"] - planned_cost),
         "max_position_weight": max_position_weight,
         "internal_warning_weight": internal_warning_weight,
-        "execution_buffer_bps": execution_buffer_bps, "warnings": sorted(set(warnings)),
-        "proposals": accepted, "proposed_order_count": len(accepted),
+        "execution_buffer_bps": execution_buffer_bps,
+        "warnings": sorted(set(warnings)),
+        "proposals": accepted,
+        "proposed_order_count": len(accepted),
         "execution_authorized": False,
     }

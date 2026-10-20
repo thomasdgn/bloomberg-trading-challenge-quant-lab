@@ -1,4 +1,5 @@
 """Tests for strict provenance / hash / timestamp gate (synthetic data only)."""
+
 from __future__ import annotations
 
 import hashlib
@@ -29,12 +30,15 @@ def test_current_and_verified_sources_pass() -> None:
     assert set(report["sources"]) == set(REQUIRED_SOURCES)
 
 
-@pytest.mark.parametrize("break_source", [
-    lambda item: item.update(verified=False),
-    lambda item: item.update(observed_date="2026-10-07"),
-    lambda item: item.update(observed_date="2026-10-21"),
-    lambda item: item.update(provenance=""),
-])
+@pytest.mark.parametrize(
+    "break_source",
+    [
+        lambda item: item.update(verified=False),
+        lambda item: item.update(observed_date="2026-10-07"),
+        lambda item: item.update(observed_date="2026-10-21"),
+        lambda item: item.update(provenance=""),
+    ],
+)
 def test_bad_provenance_or_date_is_blocked(break_source) -> None:
     source = manifest()
     break_source(source["sources"]["wls_benchmark"])

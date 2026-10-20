@@ -1,4 +1,5 @@
 """Transparent deterministic stress tests, not predictive probabilities."""
+
 from __future__ import annotations
 
 from math import isfinite
@@ -33,15 +34,23 @@ def stress_portfolio(
                 raise DataBlocked(f"{item['id']}: numeric shock required") from exc
             if not isfinite(shock) or shock < -1.0:
                 raise DataBlocked(f"{item['id']}: finite shock >= -100% required")
-            losses.append({"id": item["id"], "shock": shock,
-                           "pnl_usd": item["market_value_usd"] * shock})
+            losses.append(
+                {"id": item["id"], "shock": shock, "pnl_usd": item["market_value_usd"] * shock}
+            )
         pnl_usd = sum(row["pnl_usd"] for row in losses)
-        results.append({"name": scenario_name, "portfolio_pnl_usd": pnl_usd,
-                        "portfolio_return": pnl_usd / state["nav_usd"],
-                        "per_position": losses})
-    return {"status": "PASS", "advisory_only": True, "as_of_date": state["as_of_date"],
-            "nav_usd": state["nav_usd"], "scenarios": results,
-            "note": (
-                "Hypothetical USD mark shocks only; "
-                "no liquidity, correlation or fill modelling"
-            )}
+        results.append(
+            {
+                "name": scenario_name,
+                "portfolio_pnl_usd": pnl_usd,
+                "portfolio_return": pnl_usd / state["nav_usd"],
+                "per_position": losses,
+            }
+        )
+    return {
+        "status": "PASS",
+        "advisory_only": True,
+        "as_of_date": state["as_of_date"],
+        "nav_usd": state["nav_usd"],
+        "scenarios": results,
+        "note": ("Hypothetical USD mark shocks only; no liquidity, correlation or fill modelling"),
+    }

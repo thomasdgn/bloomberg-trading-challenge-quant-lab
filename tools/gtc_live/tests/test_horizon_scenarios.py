@@ -1,4 +1,5 @@
 """Synthetic horizon and stress tests; scenarios are not probability forecasts."""
+
 from __future__ import annotations
 
 import pytest
@@ -27,9 +28,7 @@ def test_missing_challenge_end_session_is_rejected() -> None:
 
 
 def test_stress_mechanics_are_explicit() -> None:
-    result = stress_portfolio(
-        verified_snapshot(), {"DOWN_25": {"SYNTH UN Equity": -0.25}}
-    )
+    result = stress_portfolio(verified_snapshot(), {"DOWN_25": {"SYNTH UN Equity": -0.25}})
     assert result["scenarios"][0]["portfolio_pnl_usd"] == pytest.approx(-50)
     assert result["scenarios"][0]["portfolio_return"] == pytest.approx(-0.05)
 

@@ -1,4 +1,5 @@
 """Competition horizon uses a caller-supplied *verified exchange calendar*."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -26,7 +27,8 @@ def remaining_horizon(as_of_date: str, exchange_sessions: list[str]) -> dict[str
         raise DataBlocked("exchange session list contains a weekend")
     remaining = [d for d in sessions if today < d <= END_DATE]
     return {
-        "as_of_date": str(today), "challenge_end": str(END_DATE),
+        "as_of_date": str(today),
+        "challenge_end": str(END_DATE),
         "remaining_exchange_sessions": len(remaining),
         "remaining_calendar_days": (END_DATE - today).days,
         "remaining_sessions": [str(d) for d in remaining],

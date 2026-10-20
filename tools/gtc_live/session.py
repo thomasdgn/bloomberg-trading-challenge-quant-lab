@@ -1,4 +1,5 @@
 """Single fail-closed session preflight: feed gate + actual holdings + orders."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -30,9 +31,12 @@ def assess_session(payload: dict[str, Any]) -> dict[str, Any]:
         raise DataBlocked("proposals list required (use [] for a dry-run)")
     pretrade = check_trade_plan(snapshot, proposed)
     return {
-        "status": "PASS", "as_of_date": pretrade["as_of_date"],
-        "advisory_only": True, "execution_authorized": False,
-        "feed": fresh, "pretrade": pretrade,
+        "status": "PASS",
+        "as_of_date": pretrade["as_of_date"],
+        "advisory_only": True,
+        "execution_authorized": False,
+        "feed": fresh,
+        "pretrade": pretrade,
         "limits": [
             "human-verified source truth and Bloomberg/TMSG permissions still required",
             "no price move, gap, FX change or order execution can be guaranteed",

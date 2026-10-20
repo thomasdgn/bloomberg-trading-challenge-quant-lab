@@ -1,4 +1,5 @@
 """Daily WLS-relative attribution for unchanged executed positions (no invented fills)."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -52,18 +53,28 @@ def daily_relative_pnl(
         start_value = qty * start_usd
         absolute = qty * (end_usd - start_usd)
         active = absolute / first["nav_usd"] - start_value / first["nav_usd"] * br
-        contrib.append({"id": ticker, "price_return_usd": end_usd / start_usd - 1,
-                        "start_weight": start_value / first["nav_usd"],
-                        "pnl_usd": absolute, "active_contribution": active})
+        contrib.append(
+            {
+                "id": ticker,
+                "price_return_usd": end_usd / start_usd - 1,
+                "start_weight": start_value / first["nav_usd"],
+                "pnl_usd": absolute,
+                "active_contribution": active,
+            }
+        )
     cash_active = -(first["cash_usd"] / first["nav_usd"]) * br
     total_active = sum(item["active_contribution"] for item in contrib) + cash_active
     if abs(total_active - (pr - br)) > 1e-10:
         raise DataBlocked("attribution failed reconciliation identity")
     return {
-        "status": "PASS", "advisory_only": True,
-        "start_date": first["as_of_date"], "end_date": last["as_of_date"],
-        "portfolio_return": pr, "benchmark_return": br,
-        "active_return": pr - br, "pnl_usd": last["nav_usd"] - first["nav_usd"],
+        "status": "PASS",
+        "advisory_only": True,
+        "start_date": first["as_of_date"],
+        "end_date": last["as_of_date"],
+        "portfolio_return": pr,
+        "benchmark_return": br,
+        "active_return": pr - br,
+        "pnl_usd": last["nav_usd"] - first["nav_usd"],
         "cash_active_contribution": cash_active,
         "contributions": sorted(contrib, key=lambda x: x["active_contribution"]),
         "limitation": "Only unchanged executed quantities and unchanged cash; no fills/flows",

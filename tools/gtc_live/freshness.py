@@ -3,6 +3,7 @@
 Declaring a source 'verified' is a human attestation, never a validation of
 Bloomberg entitlements, licenses or the truth of an underlying observation.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -51,8 +52,11 @@ def audit_freshness(
         if not str(entry.get("provenance", "")).strip():
             raise DataBlocked(f"{key}: origin/provenance required")
         age = age_days(entry.get("observed_date"), as_of, key, max_age_days)
-        record = {"observed_date": entry["observed_date"], "age_days": age,
-                  "provenance": entry["provenance"]}
+        record = {
+            "observed_date": entry["observed_date"],
+            "age_days": age,
+            "provenance": entry["provenance"],
+        }
         if "sha256" in entry or "path" in entry:
             if file_root is None or "sha256" not in entry or "path" not in entry:
                 raise DataBlocked(f"{key}: both file root and path/hash required")
@@ -65,5 +69,9 @@ def audit_freshness(
                 raise DataBlocked(f"{key}: source file has changed (SHA256 mismatch)")
             record["sha256"] = actual
         statuses[key] = record
-    return {"status": "PASS", "as_of_date": str(as_of),
-            "verified_by_operator_only": True, "sources": statuses}
+    return {
+        "status": "PASS",
+        "as_of_date": str(as_of),
+        "verified_by_operator_only": True,
+        "sources": statuses,
+    }

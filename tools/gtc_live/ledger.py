@@ -3,6 +3,7 @@
 All prices and conversions are explicitly dated. Never infer execution from a submitted order.
 No direct interaction with Bloomberg or TMSG. Values are as supplied by the operator.
 """
+
 from __future__ import annotations
 
 from datetime import date
@@ -84,8 +85,13 @@ def reconcile(snapshot: dict[str, Any], *, max_quote_age_days: int = 4) -> dict[
         mark = price * multiplier * fx
         if not isfinite(mark) or mark <= 0:
             raise DataBlocked(f"{ticker}: invalid converted price")
-        instruments[ticker] = {"id": ticker, "price_usd": mark, "currency": currency,
-                               "price_asof": raw["price_asof"], "fx_asof": raw.get("fx_asof")}
+        instruments[ticker] = {
+            "id": ticker,
+            "price_usd": mark,
+            "currency": currency,
+            "price_asof": raw["price_asof"],
+            "fx_asof": raw.get("fx_asof"),
+        }
     quantities = {}
     positions = snapshot.get("positions")
     if not isinstance(positions, list):
@@ -137,19 +143,39 @@ def reconcile(snapshot: dict[str, Any], *, max_quote_age_days: int = 4) -> dict[
         else:
             price_limit_usd = None
             pending_sell_qty[ticker] = pending_sell_qty.get(ticker, 0.0) + qty
-        pending_rows.append({"order_id": oid, "id": ticker, "side": side, "status": status,
-                             "remaining_quantity": qty, "limit_price_usd": price_limit_usd})
+        pending_rows.append(
+            {
+                "order_id": oid,
+                "id": ticker,
+                "side": side,
+                "status": status,
+                "remaining_quantity": qty,
+                "limit_price_usd": price_limit_usd,
+            }
+        )
     for ticker, qty in pending_sell_qty.items():
         if qty > quantities.get(ticker, 0.0) + 1e-9:
             raise DataBlocked(f"{ticker}: pending sells exceed executed holdings")
     if reserved > cash + max(1e-8, nav * 1e-9):
         raise DataBlocked("Pending BUY orders exceed confirmed USD cash")
-    return {"as_of_date": str(as_of), "cash_usd": cash, "nav_usd": nav,
-            "available_cash_usd": max(0.0, cash - reserved),
-            "pending_reserved_usd": reserved, "positions": [
-                {"id": t, "quantity": qty, "mark_usd": instruments[t]["price_usd"],
-                 "market_value_usd": qty * instruments[t]["price_usd"],
-                 "weight": qty * instruments[t]["price_usd"] / nav}
-                for t, qty in sorted(quantities.items())],
-            "pending_orders": pending_rows, "pending_buy_quantity": pending_buy_qty,
-            "pending_sell_quantity": pending_sell_qty, "instruments": instruments}
+    return {
+        "as_of_date": str(as_of),
+        "cash_usd": cash,
+        "nav_usd": nav,
+        "available_cash_usd": max(0.0, cash - reserved),
+        "pending_reserved_usd": reserved,
+        "positions": [
+            {
+                "id": t,
+                "quantity": qty,
+                "mark_usd": instruments[t]["price_usd"],
+                "market_value_usd": qty * instruments[t]["price_usd"],
+                "weight": qty * instruments[t]["price_usd"] / nav,
+            }
+            for t, qty in sorted(quantities.items())
+        ],
+        "pending_orders": pending_rows,
+        "pending_buy_quantity": pending_buy_qty,
+        "pending_sell_quantity": pending_sell_qty,
+        "instruments": instruments,
+    }
