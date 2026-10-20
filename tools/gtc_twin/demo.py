@@ -7,7 +7,6 @@ from __future__ import annotations
 import argparse
 import json
 from datetime import date, timedelta
-from pathlib import Path
 
 from tools.gtc_live.ledger import DataBlocked
 from tools.gtc_twin.__main__ import _under_output_root
