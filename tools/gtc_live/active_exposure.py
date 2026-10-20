@@ -1,6 +1,7 @@
 """Exposure comparison against a complete, operator-verified WLS weight file."""
 from __future__ import annotations
 
+from datetime import date
 from typing import Any
 
 from tools.gtc_live.ledger import DataBlocked, age_days, positive, reconcile
@@ -25,8 +26,6 @@ def compare_active_exposures(snapshot: dict[str, Any], index: dict[str, Any]) ->
     expected = index.get("expected_constituent_count")
     if isinstance(expected, bool) or not isinstance(expected, int) or expected != len(constituents):
         raise DataBlocked("index: declared constituent count does not match list")
-    from datetime import date
-
     as_of = date.fromisoformat(state["as_of_date"])
     age_days(index.get("as_of_date"), as_of, "WLS weights", 4)
     rows = {}
