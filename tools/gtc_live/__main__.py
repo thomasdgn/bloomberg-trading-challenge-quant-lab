@@ -28,7 +28,10 @@ def build_parser() -> argparse.ArgumentParser:
         description="Read-only GTC live operations; never sends orders to Bloomberg."
     )
     commands = parser.add_subparsers(dest="command", required=True)
-    for name in ("reconcile", "pretrade", "freshness", "pnl", "horizon", "stress", "session", "filled-pnl"):
+    for name in (
+        "reconcile", "pretrade", "freshness", "pnl", "horizon",
+        "stress", "session", "filled-pnl",
+    ):
         cmd = commands.add_parser(name)
         cmd.add_argument("--input", required=True, help="Local JSON source, never committed")
         if name == "freshness":
