@@ -1,0 +1,39 @@
+name: Live operations — isolated validation
+
+on:
+  push:
+    branches:
+      - feature/gtc-live-ops-audit-20261020
+    paths:
+      - "tools/gtc_live/**"
+      - ".github/workflows/live-ops.yml"
+  pull_request:
+    paths:
+      - "tools/gtc_live/**"
+      - ".github/workflows/live-ops.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  isolated:
+    name: Live operations tests (no trading/API access)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install developer test tools
+        run: python -m pip install "pytest>=8,<10" "ruff>=0.14,<0.18"
+      - name: Lint new package only
+        run: python -m ruff check tools/gtc_live
+      - name: Check formatting new package only
+        run: python -m ruff format --check tools/gtc_live
+      - name: Check Python compile safety
+        run: python -m compileall -q tools/gtc_live
+      - name: Smoke-test read-only CLI
+        run: python -m tools.gtc_live --help
+      - name: Validate all isolated controls
+        run: python -m pytest -q tools/gtc_live/tests

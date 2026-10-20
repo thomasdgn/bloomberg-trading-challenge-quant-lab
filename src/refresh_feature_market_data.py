@@ -44,12 +44,10 @@ def load_yahoo_mapping(
         overrides = pd.read_csv(override_path)
         required = {"id", "yahoo_ticker", "enabled"}
         if required.issubset(overrides.columns):
-            overrides = overrides[_enabled(overrides["enabled"])].drop_duplicates(
-                "id", keep="last"
-            )
+            overrides = overrides[_enabled(overrides["enabled"])].drop_duplicates("id", keep="last")
             override_values = overrides.set_index("id")["yahoo_ticker"]
-            mapping["yahoo_ticker"] = mapping["id"].map(override_values).fillna(
-                mapping["yahoo_ticker"]
+            mapping["yahoo_ticker"] = (
+                mapping["id"].map(override_values).fillna(mapping["yahoo_ticker"])
             )
 
     mapping["yahoo_ticker"] = mapping["yahoo_ticker"].astype("string").str.strip()
@@ -248,8 +246,7 @@ def refresh_market_data(
     volume_counts = new_volumes.notna().sum()
     report["new_volume_observations"] = report["id"].map(volume_counts).fillna(0).astype(int)
     report.loc[
-        report["refresh_status"].eq("VALIDATED")
-        & report["new_volume_observations"].eq(0),
+        report["refresh_status"].eq("VALIDATED") & report["new_volume_observations"].eq(0),
         "refresh_status",
     ] = "NO_NEW_VOLUME"
 

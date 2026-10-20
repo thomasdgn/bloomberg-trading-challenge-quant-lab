@@ -153,8 +153,7 @@ def load_weekly_template(path: Path) -> dict[str, pd.DataFrame]:
     if missing:
         raise ValueError(f"Onglets absents : {sorted(missing)}")
     return {
-        name: _clean_sheet(pd.read_excel(workbook, sheet_name=name))
-        for name in required_sheets
+        name: _clean_sheet(pd.read_excel(workbook, sheet_name=name)) for name in required_sheets
     }
 
 

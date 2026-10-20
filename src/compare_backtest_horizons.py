@@ -6,12 +6,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-DEFAULT_WEEKLY_PATH = Path(
-    "data/processed/execution_backtest/v1_1w_sans_stop/periods.csv"
-)
-DEFAULT_FIVE_WEEK_PATH = Path(
-    "data/processed/execution_backtest/v1_sans_stop/periods.csv"
-)
+DEFAULT_WEEKLY_PATH = Path("data/processed/execution_backtest/v1_1w_sans_stop/periods.csv")
+DEFAULT_FIVE_WEEK_PATH = Path("data/processed/execution_backtest/v1_sans_stop/periods.csv")
 DEFAULT_OUTPUT_DIR = Path("data/processed/execution_backtest/horizon_comparison")
 
 
@@ -49,14 +45,11 @@ def summarize_path(group: pd.DataFrame, horizon_weeks: int) -> dict[str, float |
             group["one_way_turnover"].mean() * 52.0 / horizon_weeks
         ),
         "mean_cost_per_period": float(group["total_cost_return"].mean()),
-        "annualized_cost_linear": float(
-            group["total_cost_return"].mean() * 52.0 / horizon_weeks
-        ),
+        "annualized_cost_linear": float(group["total_cost_return"].mean() * 52.0 / horizon_weeks),
         "annualized_net_return": annualized_net,
         "annualized_benchmark_return": annualized_benchmark,
         "annualized_relative_return": annualized_relative,
-        "equivalent_relative_return_5w": (1.0 + annualized_relative) ** (5.0 / 52.0)
-        - 1.0,
+        "equivalent_relative_return_5w": (1.0 + annualized_relative) ** (5.0 / 52.0) - 1.0,
         "annualized_excess_volatility": annualized_excess_volatility,
         "information_ratio": information_ratio,
         "max_drawdown": max_drawdown(net),
@@ -79,9 +72,7 @@ def compare_horizons(
     common_end = min(frame["end_date"].max() for frame, _ in frames.values())
     path_rows = []
     for strategy, (frame, horizon_weeks) in frames.items():
-        comparable = frame[
-            frame["date"].ge(common_start) & frame["end_date"].le(common_end)
-        ].copy()
+        comparable = frame[frame["date"].ge(common_start) & frame["end_date"].le(common_end)].copy()
         for offset, group in comparable.groupby("offset"):
             ordered = group.sort_values("date")
             path_rows.append(
@@ -170,9 +161,7 @@ def main() -> None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     summary.to_csv(args.output_dir / "comparison_summary.csv", index=False)
     by_path.to_csv(args.output_dir / "comparison_by_path.csv", index=False)
-    (args.output_dir / "comparison.md").write_text(
-        render_markdown(summary), encoding="utf-8"
-    )
+    (args.output_dir / "comparison.md").write_text(render_markdown(summary), encoding="utf-8")
     print(summary.to_string(index=False))
     print(f"Comparaison créée dans {args.output_dir}")
 
