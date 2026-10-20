@@ -1,5 +1,5 @@
 name: Format live-ops branch safely
-# Rerun after adding the confirmed-fill accounting and its synthetic tests.
+# Recheck trade PnL tests and formatting following Ruff fixes.
 
 on:
   push:
