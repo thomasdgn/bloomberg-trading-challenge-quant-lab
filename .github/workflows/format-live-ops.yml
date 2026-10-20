@@ -1,4 +1,5 @@
 name: Format live-ops branch safely
+# Rerun after adding the confirmed-fill accounting and its synthetic tests.
 
 on:
   push:
