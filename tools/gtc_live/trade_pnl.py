@@ -5,7 +5,7 @@ dividends, splits, FX financing or interim time-weighted returns are supported.
 """
 from __future__ import annotations
 
-from datetime import date, datetime, time, timezone
+from datetime import date, datetime, timezone
 from math import isclose
 from typing import Any
 
