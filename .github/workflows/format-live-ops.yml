@@ -1,5 +1,5 @@
 name: Format live-ops branch safely
-# Recheck trade PnL tests and formatting following Ruff fixes.
+# Final format and synthetic regression for full-index active exposure module.
 
 on:
   push:
