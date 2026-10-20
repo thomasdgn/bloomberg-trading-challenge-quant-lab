@@ -44,16 +44,14 @@ def build_clean_allocation_exports(
     missing_allocation = required_allocation - set(allocation.columns)
     if missing_allocation:
         raise ValueError(
-            "Colonnes manquantes dans l'allocation 80/20 : "
-            + ", ".join(sorted(missing_allocation))
+            "Colonnes manquantes dans l'allocation 80/20 : " + ", ".join(sorted(missing_allocation))
         )
 
     required_orders = {"id", "last_price", "price_to_usd_rate"}
     missing_orders = required_orders - set(orders.columns)
     if missing_orders:
         raise ValueError(
-            "Colonnes manquantes dans le plan d'ordres : "
-            + ", ".join(sorted(missing_orders))
+            "Colonnes manquantes dans le plan d'ordres : " + ", ".join(sorted(missing_orders))
         )
     if capital <= 0:
         raise ValueError("Le capital doit être strictement positif.")
@@ -61,26 +59,18 @@ def build_clean_allocation_exports(
     selected = allocation[allocation["weight"].astype(float).gt(1e-12)].copy()
     order_data = orders.drop_duplicates("id", keep="last").set_index("id")
     selected["last_price_local"] = selected["id"].map(order_data["last_price"])
-    selected["price_to_usd_rate"] = selected["id"].map(
-        order_data["price_to_usd_rate"]
-    )
+    selected["price_to_usd_rate"] = selected["id"].map(order_data["price_to_usd_rate"])
     selected["currency"] = selected["currency"].astype("string")
-    selected["currency"] = selected["currency"].fillna(
-        selected["id"].map(infer_currency)
-    )
+    selected["currency"] = selected["currency"].fillna(selected["id"].map(infer_currency))
     selected["allocation_pct"] = 100.0 * selected["weight"].astype(float)
     selected["allocation_usd"] = capital * selected["weight"].astype(float)
-    selected["last_price_usd"] = (
-        selected["last_price_local"] * selected["price_to_usd_rate"]
-    )
+    selected["last_price_usd"] = selected["last_price_local"] * selected["price_to_usd_rate"]
     selected["score"] = np.where(
         selected["sleeve"].eq("core_5w"),
         100.0 * selected["combined_score"],
         selected["opportunity_score"],
     )
-    selected["estimated_excess_return_5w_pct"] = (
-        100.0 * selected["predicted_excess_return"]
-    )
+    selected["estimated_excess_return_5w_pct"] = 100.0 * selected["predicted_excess_return"]
     selected["estimated_excess_profit_5w_usd"] = (
         selected["allocation_usd"] * selected["predicted_excess_return"]
     )
@@ -97,9 +87,7 @@ def build_clean_allocation_exports(
         }
     )
     for sleeve, sleeve_rows in selected.groupby("sleeve"):
-        sleeve_weight = allocation.loc[
-            allocation["sleeve"].eq(sleeve), "weight"
-        ].sum()
+        sleeve_weight = allocation.loc[allocation["sleeve"].eq(sleeve), "weight"].sum()
         expected_total = round(capital * sleeve_weight, 2)
         rounding_residual = round(
             expected_total - sleeve_rows["allocation_usd"].sum(),

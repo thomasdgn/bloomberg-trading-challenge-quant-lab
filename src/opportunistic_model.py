@@ -147,8 +147,8 @@ def load_candidates(
         if {"id", "yahoo_ticker", "enabled"}.issubset(mapping.columns):
             mapping = mapping[_enabled(mapping["enabled"])].drop_duplicates("id", keep="last")
             overrides = mapping.set_index("id")["yahoo_ticker"]
-            candidates["yahoo_ticker"] = candidates["id"].map(overrides).fillna(
-                candidates["yahoo_ticker"]
+            candidates["yahoo_ticker"] = (
+                candidates["id"].map(overrides).fillna(candidates["yahoo_ticker"])
             )
 
     if static_path.exists():
@@ -372,15 +372,11 @@ def compute_opportunity_scores(
         + 0.20 * _percentile(result.loc[eligible, "momentum_60d"])
         + 0.10 * _percentile(result.loc[eligible, "distance_252d_high"])
         + 0.15 * _percentile(result.loc[eligible, "predicted_excess_return"])
-        + 0.15
-        * _percentile(result.loc[eligible, "analyst_upside_pct"]).fillna(0.50)
+        + 0.15 * _percentile(result.loc[eligible, "analyst_upside_pct"]).fillna(0.50)
     )
     risk = (
         0.45 * _percentile(result.loc[eligible, "volatility_20d"], higher_is_better=False)
-        + 0.25
-        * _percentile(
-            result.loc[eligible, "downside_deviation_60d"], higher_is_better=False
-        )
+        + 0.25 * _percentile(result.loc[eligible, "downside_deviation_60d"], higher_is_better=False)
         + 0.30 * _percentile(result.loc[eligible, "max_drawdown_60d"])
     )
     liquidity = _percentile(result.loc[eligible, "avg_dollar_volume_20d_usd"])
@@ -391,9 +387,7 @@ def compute_opportunity_scores(
         0.55 * profit + 0.30 * risk + 0.15 * liquidity
     )
     result["risk_level"] = [
-        _risk_level(volatility, drawdown)
-        if is_eligible
-        else "INELIGIBLE"
+        _risk_level(volatility, drawdown) if is_eligible else "INELIGIBLE"
         for volatility, drawdown, is_eligible in zip(
             result["volatility_20d"],
             result["max_drawdown_60d"],
