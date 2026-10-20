@@ -31,5 +31,9 @@ jobs:
         run: python -m ruff check tools/gtc_live
       - name: Check formatting new package only
         run: python -m ruff format --check tools/gtc_live
+      - name: Check Python compile safety
+        run: python -m compileall -q tools/gtc_live
+      - name: Smoke-test read-only CLI
+        run: python -m tools.gtc_live --help
       - name: Validate all isolated controls
         run: python -m pytest -q tools/gtc_live/tests
