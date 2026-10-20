@@ -5,7 +5,7 @@ dividends, splits, FX financing or interim time-weighted returns are supported.
 """
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from math import isclose
 from typing import Any
 
@@ -20,7 +20,7 @@ def _aware_time(raw: Any, lower: date, upper: date) -> datetime:
         raise DataBlocked("fill executed_at: ISO time with timezone required") from exc
     if stamp.tzinfo is None or stamp.utcoffset() is None:
         raise DataBlocked("fill executed_at must include timezone")
-    stamp_utc = stamp.astimezone(timezone.utc)
+    stamp_utc = stamp.astimezone(UTC)
     if not lower < stamp_utc.date() <= upper:
         raise DataBlocked("fill executed_at outside close-to-close interval")
     return stamp_utc
