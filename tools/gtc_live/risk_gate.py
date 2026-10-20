@@ -1,7 +1,6 @@
 """Conservative PRE-TRADE checks. Never place an order or recycle unfilled sells."""
 from __future__ import annotations
 
-from math import ceil
 from typing import Any
 
 from tools.gtc_live.ledger import DataBlocked, positive, reconcile
