@@ -7,7 +7,9 @@ from typing import Any
 from tools.gtc_live.ledger import DataBlocked, reconcile
 
 
-def stress_portfolio(snapshot: dict[str, Any], scenarios: dict[str, dict[str, float]]) -> dict[str, Any]:
+def stress_portfolio(
+    snapshot: dict[str, Any], scenarios: dict[str, dict[str, float]]
+) -> dict[str, Any]:
     """User-declared per-security USD shocks. No guessed correlation or missing shocks."""
     state = reconcile(snapshot)
     if not isinstance(scenarios, dict) or not scenarios:
@@ -39,4 +41,7 @@ def stress_portfolio(snapshot: dict[str, Any], scenarios: dict[str, dict[str, fl
                         "per_position": losses})
     return {"status": "PASS", "advisory_only": True, "as_of_date": state["as_of_date"],
             "nav_usd": state["nav_usd"], "scenarios": results,
-            "note": "Hypothetical USD mark shocks only; no liquidity, correlation or fill modelling"}
+            "note": (
+                "Hypothetical USD mark shocks only; "
+                "no liquidity, correlation or fill modelling"
+            )}
