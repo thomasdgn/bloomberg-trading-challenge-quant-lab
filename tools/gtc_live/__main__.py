@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from tools.gtc_live.active_exposure import compare_active_exposures
 from tools.gtc_live.freshness import audit_freshness
 from tools.gtc_live.horizon import remaining_horizon
 from tools.gtc_live.ledger import DataBlocked, reconcile
@@ -37,6 +38,7 @@ def build_parser() -> argparse.ArgumentParser:
         "stress",
         "session",
         "filled-pnl",
+        "exposures",
     ):
         cmd = commands.add_parser(name)
         cmd.add_argument("--input", required=True, help="Local JSON source, never committed")
@@ -67,6 +69,8 @@ def run(args: argparse.Namespace) -> Any:
         return stress_portfolio(data["snapshot"], data["scenarios"])
     if args.command == "session":
         return assess_session(data)
+    if args.command == "exposures":
+        return compare_active_exposures(data["snapshot"], data["index"])
     if args.command == "filled-pnl":
         return reconcile_filled_pnl(
             data["start"],
