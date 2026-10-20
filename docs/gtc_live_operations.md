@@ -81,12 +81,37 @@ python -m tools.gtc_live pretrade --input outputs/gtc_live/proposals.json
 python -m tools.gtc_live session --input outputs/gtc_live/session.json
 python -m tools.gtc_live stress --input outputs/gtc_live/stress.json
 python -m tools.gtc_live pnl --input outputs/gtc_live/daily.json
+python -m tools.gtc_live filled-pnl --input outputs/gtc_live/fills_day.json
 python -m tools.gtc_live horizon --input outputs/gtc_live/horizon.json --calendar outputs/gtc_live/nyse_sessions.json
 ```
 
 `stress.json` holds `snapshot` and `scenarios`; each named scenario lists a numeric USD % shock as a fraction for **every** held ticker, with none missing. It computes arithmetic marked P&L and assumes zero shock to USD cash. No scenario likelihood, liquidity impact or model-implied alpha is estimated.
 
 `daily.json` holds `start`, `end`, `benchmark_start`, `benchmark_end`. Benchmark entries require `as_of_date`, `verified:true`, `basis:"PRICE_RETURN"`, `level` and `source`. This P&L helper **intentionally rejects** pending orders, changes in held quantities, changes in cash, and mixed return bases. It is a no-trade daily attribution tool, NOT a real-time fill-aware performance engine. On trading days use verified official TMSG performance and reconcile trades before creating a full trade-aware ledger. For dividends and corporate actions, further total-return support is required.
+
+### Trading days: fill-aware simple daily return
+
+For a session with trades use `filled-pnl` instead of the no-trade `pnl` helper. Its JSON input holds `start` and `end` snapshots, `benchmark_start` and `benchmark_end` as above, plus a `fills` list. **The fill list must be obtained from actual confirmed TMSG executions** in ascending UTC time (not from the exported intended orders).
+
+A complete synthetic fill (never use this ID on a real account) is:
+
+```json
+{
+  "fill_id": "SYNTHETIC_FILL_01",
+  "status": "FILLED",
+  "executed_at": "2026-10-21T14:35:00+00:00",
+  "id": "SYNTHETIC UN Equity",
+  "side": "BUY",
+  "quantity": 1,
+  "execution_price_local": 100,
+  "currency": "USD",
+  "price_unit_multiplier": 1,
+  "usd_per_unit": 1,
+  "fee_usd": 1
+}
+```
+
+For a non-USD execution additionally supply `fx_observed_at` with a timezone and a verified conversion valid *no later than* execution. Every fill requires a real unique execution ID, fee and verified local price. The module recomputes ending quantities and cash independently, refuses implied borrowing or short selling, and checks the sum of position P&L against the difference in NAV. Any discrepancy blocks the report. It reports both simple portfolio return and WLS-relative return, but not intraday time-weighted contributions. It cannot handle external cash flows, splits, dividends, stock lending, trade settlement timing, or corporate actions: manually reconcile these before relying on the output. The official TMSG-relative P&L remains the source of truth.
 
 `horizon.json` contains `{"as_of_date":"2026-10-20"}`; `nyse_sessions.json` is an operator-verified sorted ISO date list covering the decision date through 13 November. The function counts sessions only. It does **not** assume the same forecast horizon as the original 16 October four-week signal, adjust the alpha automatically or submit orders.
 
