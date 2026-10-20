@@ -23,13 +23,24 @@ def sensitivity_grid(
 ) -> dict[str, Any]:
     baseline = prepare(payload)
     center = baseline["cost_bps"]
-    prices = cost_bps if cost_bps is not None else [
-        max(0.0, center / 2), center, min(300.0, center * 2),
-    ]
-    blocks = block_sizes if block_sizes is not None else [
-        max(1, baseline["block"] // 2), baseline["block"],
-        min(20, baseline["block"] * 2),
-    ]
+    if cost_bps is None:
+        prices = (
+            [0.0, 10.0, 25.0] if center == 0
+            else [50.0, 150.0, 300.0] if center == 300
+            else [center / 2, center, min(300.0, center * 2)]
+        )
+    else:
+        prices = cost_bps
+    original_block = baseline["block"]
+    if block_sizes is None:
+        blocks = (
+            [1, 2, 5] if original_block == 1
+            else [5, 10, 20] if original_block == 20
+            else [max(1, original_block // 2),
+                  original_block, min(20, original_block * 2)]
+        )
+    else:
+        blocks = block_sizes
     if not isinstance(prices, list) or not isinstance(blocks, list):
         raise DataBlocked("sensitivity grids must be explicit lists")
     if len(prices) < 2 or len(blocks) < 2 or len(prices) * len(blocks) > 16:
