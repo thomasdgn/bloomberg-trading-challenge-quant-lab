@@ -1,4 +1,5 @@
 """Exposure comparison against a complete, operator-verified WLS weight file."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -57,8 +58,14 @@ def compare_active_exposures(snapshot: dict[str, Any], index: dict[str, Any]) ->
         benchmark_weight = record["weight"]
         portfolio_weight = held.get(ticker, 0.0)
         active = portfolio_weight - benchmark_weight
-        positions.append({"id": ticker, "portfolio_weight": portfolio_weight,
-                          "wls_weight": benchmark_weight, "active_weight": active})
+        positions.append(
+            {
+                "id": ticker,
+                "portfolio_weight": portfolio_weight,
+                "wls_weight": benchmark_weight,
+                "active_weight": active,
+            }
+        )
         for dimension in dimensions:
             group = record[dimension]
             destination = groups[dimension].setdefault(
@@ -67,24 +74,22 @@ def compare_active_exposures(snapshot: dict[str, Any], index: dict[str, Any]) ->
             destination["portfolio_weight"] += portfolio_weight
             destination["wls_weight"] += benchmark_weight
     for dimension in dimensions:
-        groups[dimension]["USD_CASH"] = {
-            "portfolio_weight": cash_weight, "wls_weight": 0.0
-        }
+        groups[dimension]["USD_CASH"] = {"portfolio_weight": cash_weight, "wls_weight": 0.0}
         for record in groups[dimension].values():
-            record["active_weight"] = (
-                record["portfolio_weight"] - record["wls_weight"]
-            )
+            record["active_weight"] = record["portfolio_weight"] - record["wls_weight"]
     summed_active = cash_weight + sum(row["active_weight"] for row in positions)
     if abs(summed_active) > 1e-8:
         raise DataBlocked("active exposure does not sum to zero")
-    active_share = 0.5 * (
-        cash_weight + sum(abs(row["active_weight"]) for row in positions)
-    )
+    active_share = 0.5 * (cash_weight + sum(abs(row["active_weight"]) for row in positions))
     return {
-        "status": "PASS", "advisory_only": True,
-        "as_of_date": state["as_of_date"], "index_as_of_date": index["as_of_date"],
-        "index_count": len(rows), "nav_usd": state["nav_usd"],
-        "cash_weight": cash_weight, "active_share": active_share,
+        "status": "PASS",
+        "advisory_only": True,
+        "as_of_date": state["as_of_date"],
+        "index_as_of_date": index["as_of_date"],
+        "index_count": len(rows),
+        "nav_usd": state["nav_usd"],
+        "cash_weight": cash_weight,
+        "active_share": active_share,
         "active_weight_total": summed_active,
         "top_active_positions": sorted(
             positions, key=lambda x: abs(x["active_weight"]), reverse=True
