@@ -13,6 +13,7 @@ from tools.gtc_live.ledger import DataBlocked, reconcile
 from tools.gtc_live.performance import daily_relative_pnl
 from tools.gtc_live.risk_gate import check_trade_plan
 from tools.gtc_live.scenarios import stress_portfolio
+from tools.gtc_live.session import assess_session
 
 
 def read_json(filename: str) -> Any:
@@ -25,7 +26,7 @@ def build_parser() -> argparse.ArgumentParser:
         description="Read-only GTC live operations; never sends orders to Bloomberg."
     )
     commands = parser.add_subparsers(dest="command", required=True)
-    for name in ("reconcile", "pretrade", "freshness", "pnl", "horizon", "stress"):
+    for name in ("reconcile", "pretrade", "freshness", "pnl", "horizon", "stress", "session"):
         cmd = commands.add_parser(name)
         cmd.add_argument("--input", required=True, help="Local JSON source, never committed")
         if name == "freshness":
@@ -50,6 +51,8 @@ def run(args: argparse.Namespace) -> Any:
         return remaining_horizon(data["as_of_date"], read_json(args.calendar))
     if args.command == "stress":
         return stress_portfolio(data["snapshot"], data["scenarios"])
+    if args.command == "session":
+        return assess_session(data)
     raise DataBlocked("unsupported command")
 
 
