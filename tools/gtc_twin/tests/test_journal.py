@@ -36,7 +36,7 @@ def test_append_decision_and_checkpoint_verified_chain(example_payload, tmp_path
             "note": "Research hypothesis, no execution",
         },
         root=tmp_path,
-        today=date(2026, 10, 22),
+        today=date(2026, 10, 21),
     )
     assert one["seq"] == 1
     two = append_event(
@@ -151,3 +151,42 @@ def test_operator_verification_is_mandatory(example_payload, tmp_path) -> None:
     checkpoint["verified_by_operator"] = False
     with pytest.raises(DataBlocked, match="verified"):
         append_event(journal, "CHECKPOINT", checkpoint, root=tmp_path, today=date(2026, 10, 22))
+
+
+def test_retrospective_decision_is_refused(example_payload, tmp_path) -> None:
+    report = simulate(example_payload)
+    with pytest.raises(DataBlocked, match="not backdated"):
+        append_event(
+            tmp_path / "backdate.jsonl",
+            "DECISION",
+            {"simulation": report, "chosen_scenario": "HOLD"},
+            root=tmp_path,
+            today=date(2026, 10, 22),
+        )
+    assert not (tmp_path / "backdate.jsonl").exists()
+
+
+def test_corrupted_run_fingerprint_is_refused(example_payload, tmp_path) -> None:
+    report = simulate(example_payload)
+    report["run_id"] = "00000000000000000000"
+    with pytest.raises(DataBlocked, match="fingerprint"):
+        append_event(
+            tmp_path / "bad-run.jsonl",
+            "DECISION",
+            {"simulation": report, "chosen_scenario": "HOLD"},
+            root=tmp_path,
+            today=date(2026, 10, 21),
+        )
+
+
+def test_simulation_missing_version_cannot_be_registered(example_payload, tmp_path) -> None:
+    report = simulate(example_payload)
+    del report["method"]["engine_version"]
+    with pytest.raises(DataBlocked, match="version"):
+        append_event(
+            tmp_path / "unknown-version.jsonl",
+            "DECISION",
+            {"simulation": report, "chosen_scenario": "HOLD"},
+            root=tmp_path,
+            today=date(2026, 10, 21),
+        )
