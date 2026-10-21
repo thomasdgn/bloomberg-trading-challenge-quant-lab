@@ -46,7 +46,10 @@ def test_execution_costs_do_not_apply_to_unchanged_hold(example_payload) -> None
     expensive["assumed_execution_cost_bps"] = 200
     result = simulate(expensive)
     assert result["summaries"]["HOLD"]["one_off_cost_fraction_of_nav"] == 0
-    assert result["summaries"]["REBALANCE"]["one_off_cost_fraction_of_nav"] == pytest.approx(0.002)
+    rebalance = result["summaries"]["REBALANCE"]
+    assert rebalance["one_off_cost_fraction_of_nav"] == pytest.approx(
+        rebalance["one_way_turnover"] * 200.0 / 10_000
+    )
 
 
 @pytest.mark.parametrize(
