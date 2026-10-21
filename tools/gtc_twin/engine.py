@@ -40,18 +40,50 @@ def _turnover(existing: dict[str, float], target: dict[str, float]) -> float:
     return 0.5 * sum(abs(existing[k] - target[k]) for k in existing)
 
 
+def _self_financing_cost(
+    existing: dict[str, float],
+    target: dict[str, float],
+    cost_bps: float,
+) -> tuple[float, float]:
+    """Solve exact one-off proportional costs using POST-cost target weights.
+
+    NAV after execution is 1 - fee; trading each dollar leg is based on this
+    NAV, not initial pre-fee notionals. This allows fully invested portfolios
+    to self-finance costs without phantom negative cash or >100% holdings.
+    """
+    rate = cost_bps / 10_000
+    if rate == 0:
+        return 0.0, _turnover(existing, target)
+
+    def actual_turnover(fee: float) -> float:
+        remaining = 1.0 - fee
+        return 0.5 * sum(
+            abs(remaining * target[name] - existing[name]) for name in existing
+        )
+
+    lower, upper = 0.0, rate
+    for _ in range(64):
+        middle = (lower + upper) / 2
+        if middle < rate * actual_turnover(middle):
+            lower = middle
+        else:
+            upper = middle
+    fee = (lower + upper) / 2
+    return fee, actual_turnover(fee)
+
+
 def _path(
     returns: list[dict[str, Any]],
     indices: list[int],
     weights: dict[str, float],
     upfront_cost_fraction: float,
 ) -> dict[str, float]:
-    # Trading friction paid at the start; no automatic rebalancing thereafter.
+    # Dollar holdings preserve post-fee target weights at NAV=1-fee.
     values = {name: weight * (1.0 - upfront_cost_fraction) for name, weight in weights.items()}
     benchmark = 1.0
-    # Relative drawdown is calculated with the initial post-cost wealth included.
-    relative_peak = sum(values.values())
-    max_drawdown = 0.0
+    # Include any immediate execution-cost drawdown against pre-trade wealth 1.
+    relative_peak = 1.0
+    max_drawdown = -upfront_cost_fraction
     for loc in indices:
         observation = returns[loc]
         benchmark *= 1.0 + observation["wls"]
@@ -85,12 +117,14 @@ def simulate(payload: dict[str, Any]) -> dict[str, Any]:
     costs = inputs["cost_bps"]
     scenario_details = {}
     for label, target in weights.items():
-        turnover = _turnover(start, target)
+        fee, turnover = _self_financing_cost(start, target, costs)
         scenario_details[label] = {
             "weights": target,
             "one_way_turnover": turnover,
+            "indicative_pre_fee_turnover": _turnover(start, target),
             "assumed_execution_cost_bps": costs,
-            "one_off_cost_fraction_of_nav": turnover * costs / 10_000,
+            "one_off_cost_fraction_of_nav": fee,
+            "post_cost_nav_fraction": 1.0 - fee,
             "equity_weight": sum(value for k, value in target.items() if k != CASH),
             "cash_weight": target[CASH],
         }
@@ -146,7 +180,7 @@ def simulate(payload: dict[str, Any]) -> dict[str, Any]:
         "run_id": fingerprint(
             {
                 "inputs": fingerprint(payload),
-                "implementation": "gtc-digital-twin-v1",
+                "implementation": "gtc-digital-twin-v2-self-financing",
             }
         )[:20],
         "method": {
@@ -162,7 +196,10 @@ def simulate(payload: dict[str, Any]) -> dict[str, Any]:
             "decision_date": inputs["as_of_date"],
             "competition_end": inputs["challenge_end"],
             "source": inputs["source"],
-            "execution_cost_model": "single initial one-way traded weight * assumed bps",
+            "execution_cost_model": (
+                "self-financing: fee = bps * actual one-way turnover;"
+                " weights reference post-fee NAV"
+            ),
         },
         "summaries": summaries,
         "disclosures": [
@@ -172,7 +209,7 @@ def simulate(payload: dict[str, Any]) -> dict[str, Any]:
             "Current-universe selection introduces survivorship bias; not a backtest.",
             "USD cash does not track WLS; less equity can lose in rising markets.",
             "No validated Elastic Net alpha forecast or execution fill likelihood is injected.",
-            "No dividends, corporate actions, impact, taxes or unmodeled FX slippage."
+            "No dividends, corporate actions, impact, taxes or unmodeled FX slippage.",
             "Inspect official TMSG P&L, liquidity and eligibility before any human decision.",
         ],
     }
