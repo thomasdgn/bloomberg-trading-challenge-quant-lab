@@ -61,9 +61,9 @@ def test_duplicates_and_future_outcomes_are_blocked(example_payload, tmp_path) -
     journal = tmp_path / "log.jsonl"
     simulation = simulate(example_payload)
     decision = {"simulation": simulation, "chosen_scenario": "REBALANCE"}
-    append_event(journal, "DECISION", decision, root=tmp_path, today=date(2026, 10, 22))
+    append_event(journal, "DECISION", decision, root=tmp_path, today=date(2026, 10, 21))
     with pytest.raises(DataBlocked, match="already committed"):
-        append_event(journal, "DECISION", decision, root=tmp_path, today=date(2026, 10, 22))
+        append_event(journal, "DECISION", decision, root=tmp_path, today=date(2026, 10, 21))
     with pytest.raises(DataBlocked, match="requires verified 13 Nov"):
         append_event(
             journal,
@@ -90,7 +90,7 @@ def test_final_outcome_comparison_only_on_challenge_end(example_payload, tmp_pat
         "DECISION",
         {"simulation": simulation, "chosen_scenario": "DEFENSIVE"},
         root=tmp_path,
-        today=date(2026, 10, 22),
+        today=date(2026, 10, 21),
     )
     append_event(
         journal,
@@ -114,7 +114,7 @@ def test_tampering_is_detected(example_payload, tmp_path) -> None:
         "DECISION",
         {"simulation": simulation, "chosen_scenario": "HOLD"},
         root=tmp_path,
-        today=date(2026, 10, 22),
+        today=date(2026, 10, 21),
     )
     content = journal.read_text()
     journal.write_text(content.replace("HOLD", "OTHER"))
@@ -133,7 +133,7 @@ def test_private_journal_cannot_escape_root(example_payload, tmp_path) -> None:
                 "chosen_scenario": "HOLD",
             },
             root=tmp_path,
-            today=date(2026, 10, 22),
+            today=date(2026, 10, 21),
         )
 
 
@@ -145,7 +145,7 @@ def test_operator_verification_is_mandatory(example_payload, tmp_path) -> None:
         "DECISION",
         {"simulation": simulation, "chosen_scenario": "HOLD"},
         root=tmp_path,
-        today=date(2026, 10, 22),
+        today=date(2026, 10, 21),
     )
     checkpoint = _checkpoint(simulation["run_id"])
     checkpoint["verified_by_operator"] = False
