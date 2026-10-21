@@ -60,9 +60,7 @@ def _self_financing_cost(
 
     def actual_turnover(fee: float) -> float:
         remaining = 1.0 - fee
-        return 0.5 * sum(
-            abs(remaining * target[name] - existing[name]) for name in existing
-        )
+        return 0.5 * sum(abs(remaining * target[name] - existing[name]) for name in existing)
 
     lower, upper = 0.0, rate
     for _ in range(64):
