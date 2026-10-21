@@ -164,7 +164,7 @@ def test_hypothetical_fees_only_reduce_wealth_in_flat_market(example_payload) ->
     none["assumed_execution_cost_bps"] = 0.0
     friction = deepcopy(example_payload)
     friction["assumed_execution_cost_bps"] = 120.0
-    for row in (none["history"] + friction["history"]):
+    for row in none["history"] + friction["history"]:
         row["wls"] = 0.0
         for ticker in row["returns"]:
             row["returns"][ticker] = 0.0
