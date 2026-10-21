@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from tools.gtc_live.ledger import DataBlocked
-from tools.gtc_twin.engine import fingerprint
+from tools.gtc_twin.engine import ENGINE_VERSION, fingerprint
 from tools.gtc_twin.schema import END_DATE
 
 ZERO = "0" * 64
@@ -146,6 +146,20 @@ def _validate_event(
         run = report.get("run_id")
         if not isinstance(run, str) or not run:
             raise DataBlocked("simulation report run_id required")
+        input_hash = report.get("input_sha256")
+        if not isinstance(input_hash, str) or len(input_hash) != 64:
+            raise DataBlocked("simulation input SHA256 missing or invalid")
+        if any(ch not in "0123456789abcdef" for ch in input_hash):
+            raise DataBlocked("simulation input SHA256 must use lowercase hex")
+        if not isinstance(report.get("method"), dict):
+            raise DataBlocked("simulation method metadata missing")
+        if report["method"].get("engine_version") != ENGINE_VERSION:
+            raise DataBlocked("simulation engine version unsupported for a new decision")
+        expected_run = fingerprint({
+            "inputs": input_hash, "implementation": ENGINE_VERSION,
+        })[:20]
+        if run != expected_run:
+            raise DataBlocked("simulation run_id does not match its input fingerprint")
         if any(e["data"]["run_id"] == run for e in events if e["kind"] == "DECISION"):
             raise DataBlocked("run_id already committed")
         chosen = str(data.get("chosen_scenario", "")).upper()
@@ -155,8 +169,8 @@ def _validate_event(
             at = date.fromisoformat(report["method"]["decision_date"])
         except (KeyError, ValueError, TypeError) as exc:
             raise DataBlocked("simulation decision date missing") from exc
-        if at > today or at >= END_DATE:
-            raise DataBlocked("cannot commit a future/expired decision")
+        if at != today or at >= END_DATE:
+            raise DataBlocked("decision must be registered on its decision date, not backdated")
         notes = str(data.get("note", "")).strip()
         if len(notes) > 2000:
             raise DataBlocked("decision note exceeds 2000 characters")
