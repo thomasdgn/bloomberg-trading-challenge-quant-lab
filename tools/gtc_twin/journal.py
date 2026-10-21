@@ -155,9 +155,12 @@ def _validate_event(
             raise DataBlocked("simulation method metadata missing")
         if report["method"].get("engine_version") != ENGINE_VERSION:
             raise DataBlocked("simulation engine version unsupported for a new decision")
-        expected_run = fingerprint({
-            "inputs": input_hash, "implementation": ENGINE_VERSION,
-        })[:20]
+        expected_run = fingerprint(
+            {
+                "inputs": input_hash,
+                "implementation": ENGINE_VERSION,
+            }
+        )[:20]
         if run != expected_run:
             raise DataBlocked("simulation run_id does not match its input fingerprint")
         if any(e["data"]["run_id"] == run for e in events if e["kind"] == "DECISION"):
