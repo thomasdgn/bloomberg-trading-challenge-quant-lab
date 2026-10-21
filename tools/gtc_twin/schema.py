@@ -68,7 +68,7 @@ def prepare(payload: dict[str, Any]) -> dict[str, Any]:
     defensive[CASH] = 1.0 - sum(defensive.values())
     defensive = validate_weights(defensive, instruments, "DEFENSIVE")
 
-    costs = _number(payload.get("assumed_execution_cost_bps"), "assumed_execution_cost_bps")
+    costs = _number(payload.get("assumed_execution_cost_bps", 0.0), "assumed_execution_cost_bps")
     if costs > 300:
         raise DataBlocked("cost assumption >300bps requires separate review")
     paths = payload.get("bootstrap_paths", 1000)
