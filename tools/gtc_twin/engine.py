@@ -15,6 +15,8 @@ from typing import Any
 from tools.gtc_live.ledger import DataBlocked
 from tools.gtc_twin.schema import CASH, prepare
 
+ENGINE_VERSION = "gtc-digital-twin-v2-self-financing"
+
 
 def fingerprint(document: Any) -> str:
     raw = json.dumps(
@@ -180,10 +182,11 @@ def simulate(payload: dict[str, Any]) -> dict[str, Any]:
         "run_id": fingerprint(
             {
                 "inputs": fingerprint(payload),
-                "implementation": "gtc-digital-twin-v2-self-financing",
+                "implementation": ENGINE_VERSION,
             }
         )[:20],
         "method": {
+            "engine_version": ENGINE_VERSION,
             "name": "paired moving-block bootstrap",
             "historical_panel": "joint daily price-only USD returns for current candidate set",
             "paths": paths,
