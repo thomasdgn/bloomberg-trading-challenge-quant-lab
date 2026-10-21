@@ -7,7 +7,7 @@ from copy import deepcopy
 import pytest
 
 from tools.gtc_live.ledger import DataBlocked
-from tools.gtc_twin.engine import simulate
+from tools.gtc_twin.engine import _path, _self_financing_cost, _turnover, simulate
 
 
 def test_three_scenarios_are_computed_and_seed_is_deterministic(example_payload) -> None:
@@ -18,7 +18,11 @@ def test_three_scenarios_are_computed_and_seed_is_deterministic(example_payload)
     assert first["execution_authorized"] is False
     assert set(first["summaries"]) == {"HOLD", "REBALANCE", "DEFENSIVE"}
     assert first["summaries"]["HOLD"]["one_way_turnover"] == 0
-    assert first["summaries"]["REBALANCE"]["one_way_turnover"] == pytest.approx(0.1)
+    rebalance = first["summaries"]["REBALANCE"]
+    assert rebalance["indicative_pre_fee_turnover"] == pytest.approx(0.1)
+    assert rebalance["one_off_cost_fraction_of_nav"] == pytest.approx(
+        rebalance["one_way_turnover"] * 15.0 / 10_000
+    )
     assert first["summaries"]["DEFENSIVE"]["cash_weight"] == pytest.approx(0.8)
     assert first["method"]["horizon_sessions"] > 0
     assert first["run_id"]
@@ -89,3 +93,46 @@ def test_forecast_does_not_claim_statistical_probability(example_payload) -> Non
         assert 0 <= row["empirical_fraction_beating_wls"] <= 1
         assert row["relative_wealth_p10"] <= row["relative_wealth_median"]
         assert row["relative_wealth_median"] <= row["relative_wealth_p90"]
+
+
+def test_exact_costs_are_self_financing_and_preserve_target_weights() -> None:
+    initial = {"STOCK_A": 0.2, "STOCK_B": 0.2, "USD_CASH": 0.6}
+    target = {"STOCK_A": 0.1, "STOCK_B": 0.2, "USD_CASH": 0.7}
+    fee, turnover = _self_financing_cost(initial, target, 150.0)
+    assert 0 < fee < 0.015
+    assert fee == pytest.approx(0.015 * turnover)
+    post_fee = {ticker: weight * (1 - fee) for ticker, weight in target.items()}
+    assert sum(post_fee.values()) == pytest.approx(1 - fee)
+    assert post_fee["STOCK_A"] / (1 - fee) == pytest.approx(target["STOCK_A"])
+    assert post_fee["STOCK_B"] / (1 - fee) == pytest.approx(target["STOCK_B"])
+
+
+def test_fully_invested_rotation_does_not_create_negative_cash() -> None:
+    initial = {"STOCK_A": 0.5, "STOCK_B": 0.5, "USD_CASH": 0.0}
+    target = {"STOCK_A": 0.25, "STOCK_B": 0.75, "USD_CASH": 0.0}
+    fee, turnover = _self_financing_cost(initial, target, 50.0)
+    assert fee == pytest.approx(0.005 * turnover)
+    values = {name: weight * (1 - fee) for name, weight in target.items()}
+    assert values["USD_CASH"] == 0
+    assert sum(values.values()) == pytest.approx(1 - fee)
+
+
+def test_drawdown_records_execution_cost_even_with_flat_market() -> None:
+    positions = {"STOCK_A": 0.2, "USD_CASH": 0.8}
+    out = _path(
+        [{"wls": 0.0, "returns": {"STOCK_A": 0.0}}],
+        [0],
+        positions,
+        0.002,
+    )
+    assert out["portfolio_return"] == pytest.approx(-0.002)
+    assert out["relative_wealth"] == pytest.approx(-0.002)
+    assert out["max_relative_drawdown"] == pytest.approx(-0.002)
+
+
+def test_zero_cost_matches_no_trade_nominal_turnover() -> None:
+    old = {"STOCK_A": 0.2, "USD_CASH": 0.8}
+    target = {"STOCK_A": 0.3, "USD_CASH": 0.7}
+    fee, actual = _self_financing_cost(old, target, 0)
+    assert fee == 0
+    assert actual == pytest.approx(_turnover(old, target))
