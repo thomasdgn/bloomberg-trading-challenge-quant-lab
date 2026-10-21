@@ -65,7 +65,7 @@ def build_demo() -> dict:
         },
         "rebalance_weights": {ids[0]: 0.10, ids[1]: 0.20, "USD_CASH": 0.70},
         "defensive_equity_scale": 0.5,
-        "assumed_execution_cost_bps": 15.0,
+        "assumed_execution_cost_bps": 0.0,
         "bootstrap_paths": 400,
         "seed": 20261021,
         "block_size_sessions": 5,
