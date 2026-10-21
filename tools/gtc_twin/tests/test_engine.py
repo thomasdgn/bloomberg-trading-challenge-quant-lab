@@ -139,3 +139,39 @@ def test_zero_cost_matches_no_trade_nominal_turnover() -> None:
     fee, actual = _self_financing_cost(old, target, 0)
     assert fee == 0
     assert actual == pytest.approx(_turnover(old, target))
+
+
+def test_competition_default_has_no_assumed_execution_fees(example_payload) -> None:
+    no_field = deepcopy(example_payload)
+    no_field.pop("assumed_execution_cost_bps")
+    zero_explicit = deepcopy(example_payload)
+    zero_explicit["assumed_execution_cost_bps"] = 0.0
+
+    default_result = simulate(no_field)
+    explicit_result = simulate(zero_explicit)
+    for label in ("HOLD", "REBALANCE", "DEFENSIVE"):
+        a = default_result["summaries"][label]
+        b = explicit_result["summaries"][label]
+        assert a["assumed_execution_cost_bps"] == 0.0
+        assert a["one_off_cost_fraction_of_nav"] == 0.0
+        assert a["post_cost_nav_fraction"] == 1.0
+        assert a["relative_wealth_median"] == pytest.approx(b["relative_wealth_median"])
+    assert default_result["execution_authorized"] is False
+
+
+def test_hypothetical_fees_only_reduce_wealth_in_flat_market(example_payload) -> None:
+    none = deepcopy(example_payload)
+    none["assumed_execution_cost_bps"] = 0.0
+    friction = deepcopy(example_payload)
+    friction["assumed_execution_cost_bps"] = 120.0
+    for row in (none["history"] + friction["history"]):
+        row["wls"] = 0.0
+        for ticker in row["returns"]:
+            row["returns"][ticker] = 0.0
+    baseline = simulate(none)["summaries"]
+    stressed = simulate(friction)["summaries"]
+    for label in ("HOLD", "REBALANCE", "DEFENSIVE"):
+        assert baseline[label]["relative_wealth_median"] == pytest.approx(0.0)
+    assert stressed["HOLD"]["relative_wealth_median"] == pytest.approx(0.0)
+    assert stressed["REBALANCE"]["relative_wealth_median"] < 0
+    assert stressed["DEFENSIVE"]["relative_wealth_median"] < 0
