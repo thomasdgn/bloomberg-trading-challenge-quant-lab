@@ -54,8 +54,9 @@ def _self_financing_cost(
     to self-finance costs without phantom negative cash or >100% holdings.
     """
     rate = cost_bps / 10_000
-    if rate == 0:
-        return 0.0, _turnover(existing, target)
+    nominal = _turnover(existing, target)
+    if rate == 0 or nominal == 0:
+        return 0.0, nominal
 
     def actual_turnover(fee: float) -> float:
         remaining = 1.0 - fee
